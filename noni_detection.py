@@ -9,7 +9,7 @@ from time import sleep
 
 # Create a new instance of the MPU6050 class
 sensor = MPU6050(0x68)
-# sensor2 = MPU6050(0x69)
+sensor2 = MPU6050(0x69)
 
 # Variables for ploting
 fig = plt.figure()
@@ -19,17 +19,18 @@ subplot3 = fig.add_subplot(2, 2, 3)
 subplot4 = fig.add_subplot(2, 2, 4)
 
 # Acceleration from sensor
-axValues = np.array()
-ayValues = np.array()
-azValues = np.array()
+axValues = np.empty(1)
+ayValues = np.empty(1)
+azValues = np.empty(1)
 
 # Acceleration from sensor2
-axValues2 = np.array()
-ayValues2 = np.array()
-azValues2 = np.array()
+axValues2 = np.empty(1)
+ayValues2 = np.empty(1)
+azValues2 = np.empty(1)
 
 # X axis
-time = np.array()
+time = np.empty(1)
+time2 = np.empty(1)
 
 # Get acceleration data
 def getData():
@@ -37,6 +38,7 @@ def getData():
         global axValues
         global ayValues
         global azValues
+	global time
 
         accel_data = sensor.get_accel_data()
         accel_data2 = sensor2.get_accel_data()
@@ -57,11 +59,11 @@ def getData():
         ay2 = accel_data2['y']
         az2 = accel_data2['z']
 
-        time.append(dt.datetime.now().strftime('%f'))
+        time = np.append(time, dt.datetime.now().strftime('%f'))
 
         axValues = np.append(axValues, ax)
-        ayValues.append(ayValues, ay)
-        azValues.append(azValues, az)
+        ayValues = np.append(ayValues, ay)
+        azValues = np.append(azValues, az)
 
         sleep(0.5)
 
@@ -74,13 +76,12 @@ def plot_acceleration(x):
 
     if len(time) == 0:
         return
-    # Add x and y to lists
 
     # Limit x and y lists to 20 items
-    axValues = axValues[-100:]
-    ayValues = ayValues[-100:]
-    ayValues = ayValues[-100:]
-    time = time[-100:]
+    axValues = axValues[-20:]
+    ayValues = ayValues[-20:]
+    ayValues = ayValues[-20:]
+    time = time[-20:]
 
     # Draw x and y lists
     subplot.clear()
@@ -95,7 +96,7 @@ def plot_acceleration(x):
     plt.title('G force over Time')
     plt.ylabel('g')
 
-def plot_acceleration2():
+def plot_acceleration2(x):
     global time
     global axValues2
     global ayValues2
@@ -130,7 +131,7 @@ def main():
 
     # Start the plot animation, with an interval of 1000ms
     ani = animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=1000)
-    ani = animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=1000)
+    # ani = animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=1000)
     plt.show()
 
 main()
