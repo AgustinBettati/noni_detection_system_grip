@@ -29,6 +29,8 @@ ayValues2 = np.empty(1)
 azValues2 = np.empty(1)
 
 # X axis
+i = 0
+i2 = 0
 time = np.empty(1)
 time2 = np.empty(1)
 
@@ -39,6 +41,7 @@ def get_data_accelerometer():
         global ayValues
         global azValues
         global time
+	global i
 
         accel_data = sensor.get_accel_data()
 
@@ -54,13 +57,15 @@ def get_data_accelerometer():
         ay = accel_data['y']
         az = accel_data['z']
 
-        time = np.append(time, dt.datetime.now().strftime('%f'))
+       #  time = np.append(time, dt.datetime.now().strftime('%f'))
+	time = np.append(time, i)
+	i += 1
 
         axValues = np.append(axValues, ax)
         ayValues = np.append(ayValues, ay)
         azValues = np.append(azValues, az)
 
-        sleep(0.5)
+	sleep(0.5)
 
 # Get acceleration data
 def get_data_accelerometer2():
@@ -69,6 +74,7 @@ def get_data_accelerometer2():
         global ayValues2
         global azValues2
         global time2
+	global i2
 
         accel_data2 = sensor2.get_accel_data()
 
@@ -84,13 +90,15 @@ def get_data_accelerometer2():
         ay2 = accel_data2['y']
         az2 = accel_data2['z']
 
-        time2 = np.append(time2, dt.datetime.now().strftime('%f'))
+        # time2 = np.append(time2, dt.datetime.now().strftime('%f'))
+	time2 = np.append(time2, i2)
+	i2 +=1
 
         axValues2 = np.append(axValues2, ax2)
         ayValues2 = np.append(ayValues2, ay2)
         azValues2 = np.append(azValues2, az2)
 
-        sleep(0.5)
+	sleep(0.5)
 
 # This function is called periodically from FuncAnimation
 def plot_acceleration(x):
@@ -105,21 +113,19 @@ def plot_acceleration(x):
     # Limit x and y lists to 20 items
     axValues = axValues[-20:]
     ayValues = ayValues[-20:]
-    ayValues = ayValues[-20:]
+    azValues = azValues[-20:]
     time = time[-20:]
 
     # Draw x and y lists
     subplot.clear()
-    subplot.plot(time, axValues)
-    subplot.plot(time, ayValues)
-    subplot.plot(time, ayValues)
+    subplot.plot(time, axValues, 'g')
+    subplot.plot(time, ayValues, 'b')
+    subplot.plot(time, azValues, 'r')
 
     # Format plot
-    subplot.set_ylim([-20,20])
+    subplot.set_ylim([-15,15])
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.30)
-    plt.title('G force over Time')
-    plt.ylabel('g')
 
 def plot_acceleration2(x):
     global time2
@@ -127,28 +133,26 @@ def plot_acceleration2(x):
     global ayValues2
     global azValues2
 
-    if len(time) == 0:
+    if len(time2) == 0:
         return
     # Add x and y to lists
 
     # Limit x and y lists to 20 items
-    axValues2 = axValues2[-100:]
-    ayValues2 = ayValues2[-100:]
-    ayValues2 = ayValues2[-100:]
-    time2 = time2[-100:]
+    axValues2 = axValues2[-20:]
+    ayValues2 = ayValues2[-20:]
+    azValues2 = azValues2[-20:]
+    time2 = time2[-20:]
 
     # Draw x and y lists
     subplot2.clear()
-    subplot2.plot(time, axValues2)
-    subplot2.plot(time, ayValues2)
-    subplot2.plot(time, ayValues2)
+    subplot2.plot(time2, axValues2, 'g')
+    subplot2.plot(time2, ayValues2, 'b')
+    subplot2.plot(time2, azValues2, 'r')
 
     # Format plot
-    subplot.set_ylim([-20,20])
+    subplot2.set_ylim([-15,15])
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.30)
-    plt.title('G force over Time')
-    plt.ylabel('g')
 
 def main():
     # the function get_data_accelerometer start in a new thread
@@ -156,8 +160,8 @@ def main():
     thread.start_new_thread( get_data_accelerometer2, () )
 
     # Start the plot animation, with an interval of 1000ms
-    animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=1000)
-    animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=1000)
+    ani = animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=3000)
+    ani2 = animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=3000)
     plt.show()
 
 main()
