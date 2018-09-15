@@ -36,13 +36,12 @@ time2 = np.empty(1)
 
 # Get acceleration data
 def get_data_accelerometer():
+    global axValues
+    global ayValues
+    global azValues
+    global time
+    global i
     while True:
-        global axValues
-        global ayValues
-        global azValues
-        global time
-	global i
-
         accel_data = sensor.get_accel_data()
 
         # If the matrix are not yet calculated, calculate them and get gyro data
@@ -58,24 +57,23 @@ def get_data_accelerometer():
         az = accel_data['z']
 
        #  time = np.append(time, dt.datetime.now().strftime('%f'))
-	time = np.append(time, i)
-	i += 1
+        time = np.append(time, i)
+        i += 1
 
         axValues = np.append(axValues, ax)
         ayValues = np.append(ayValues, ay)
         azValues = np.append(azValues, az)
 
-	sleep(0.5)
+        sleep(0.5)
 
 # Get acceleration data
 def get_data_accelerometer2():
+    global axValues2
+    global ayValues2
+    global azValues2
+    global time2
+    global i2
     while True:
-        global axValues2
-        global ayValues2
-        global azValues2
-        global time2
-	global i2
-
         accel_data2 = sensor2.get_accel_data()
 
         # If the matrix are not yet calculated, calculate them and get gyro data
@@ -91,14 +89,14 @@ def get_data_accelerometer2():
         az2 = accel_data2['z']
 
         # time2 = np.append(time2, dt.datetime.now().strftime('%f'))
-	time2 = np.append(time2, i2)
-	i2 +=1
+        time2 = np.append(time2, i2)
+        i2 +=1
 
         axValues2 = np.append(axValues2, ax2)
         ayValues2 = np.append(ayValues2, ay2)
         azValues2 = np.append(azValues2, az2)
 
-	sleep(0.5)
+        sleep(0.5)
 
 # This function is called periodically from FuncAnimation
 def plot_acceleration(x):
