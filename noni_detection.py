@@ -37,7 +37,7 @@ third_matrix_values = 20
 frequency = 0.25
 
 # Quantity of accelerations to get before doing fourier
-data_quantity = 1000
+data_quantity = 10
 
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
@@ -51,8 +51,8 @@ def get_data_accelerometers():
         now = datetime.datetime.now()
         acceleration_values1.append(get_data_accelerometer1())
         acceleration_values2.append(get_data_accelerometer2())
-        print (frequency - (datetime.datetime.now() - now).seconds)
         sleep(frequency - (datetime.datetime.now() - now).seconds)
+	quantity += 1
     accelerations = substract_accels(acceleration_values1, acceleration_values2)
     #     TODO do fourier
     print (accelerations)
@@ -87,7 +87,8 @@ def get_third_matrix():
         data_accelerometer.append(apply_first_transformation(get_accel(sensor), [x_mat, y_mat]))
         data_accelerometer2.append(apply_first_transformation(get_accel(sensor2), [x_mat2, y_mat2]))
         quantity += 1
-        sleep(200)
+        sleep(0.2)
+	print(quantity)
     z_mat = zTransform(data_accelerometer, data_accelerometer2)
     print("Obtained third matrix")
 
