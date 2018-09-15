@@ -33,15 +33,14 @@ time = np.empty(1)
 time2 = np.empty(1)
 
 # Get acceleration data
-def getData():
+def get_data_accelerometer():
     while True:
         global axValues
         global ayValues
         global azValues
-	global time
+        global time
 
         accel_data = sensor.get_accel_data()
-        accel_data2 = sensor2.get_accel_data()
 
         # If the matrix are not yet calculated, calculate them and get gyro data
         # gyro_data = sensor.get_gyro_data()
@@ -55,15 +54,41 @@ def getData():
         ay = accel_data['y']
         az = accel_data['z']
 
-        ax2 = accel_data2['x']
-        ay2 = accel_data2['y']
-        az2 = accel_data2['z']
-
         time = np.append(time, dt.datetime.now().strftime('%f'))
 
         axValues = np.append(axValues, ax)
         ayValues = np.append(ayValues, ay)
         azValues = np.append(azValues, az)
+
+        sleep(0.5)
+
+# Get acceleration data
+def get_data_accelerometer2():
+    while True:
+        global axValues2
+        global ayValues2
+        global azValues2
+        global time2
+
+        accel_data2 = sensor2.get_accel_data()
+
+        # If the matrix are not yet calculated, calculate them and get gyro data
+        # gyro_data = sensor.get_gyro_data()
+        # gyro_data2 = sensor2.get_gyro_data()
+        # gx = gyro_data['x']
+        # gy = gyro_data['y']
+        # gz = gyro_data['z']
+
+        # Need to be multiplied by the matrix
+        ax2 = accel_data2['x']
+        ay2 = accel_data2['y']
+        az2 = accel_data2['z']
+
+        time2 = np.append(time2, dt.datetime.now().strftime('%f'))
+
+        axValues2 = np.append(axValues2, ax2)
+        ayValues2 = np.append(ayValues2, ay2)
+        azValues2 = np.append(azValues2, az2)
 
         sleep(0.5)
 
@@ -97,7 +122,7 @@ def plot_acceleration(x):
     plt.ylabel('g')
 
 def plot_acceleration2(x):
-    global time
+    global time2
     global axValues2
     global ayValues2
     global azValues2
@@ -110,7 +135,7 @@ def plot_acceleration2(x):
     axValues2 = axValues2[-100:]
     ayValues2 = ayValues2[-100:]
     ayValues2 = ayValues2[-100:]
-    time = time[-100:]
+    time2 = time2[-100:]
 
     # Draw x and y lists
     subplot2.clear()
@@ -126,12 +151,13 @@ def plot_acceleration2(x):
     plt.ylabel('g')
 
 def main():
-    # the function getData start in a new thread
-    thread.start_new_thread( getData, () )
+    # the function get_data_accelerometer start in a new thread
+    thread.start_new_thread( get_data_accelerometer, () )
+    thread.start_new_thread( get_data_accelerometer2, () )
 
     # Start the plot animation, with an interval of 1000ms
-    ani = animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=1000)
-    # ani = animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=1000)
+    animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=1000)
+    animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=1000)
     plt.show()
 
 main()
