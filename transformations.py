@@ -21,8 +21,8 @@ def generateTransformationMatrices(accelX, accelY, accelZ, gyroX, gyroY, gyroZ):
 
 
 def applyTransformations(accels, matrices):
-    accelFirstTr = np.array(accels).dot(matrices[1])
-    accelSndTr = np.array(accelFirstTr[0], accelFirstTr[1], accelFirstTr[2]).dot(matrices[0])
+    accelFirstTr = np.array([accels[0], accels[1], accels[2]]).dot(matrices[1])
+    accelSndTr = np.array([accelFirstTr[0], accelFirstTr[1], accelFirstTr[2]]).dot(matrices[0])
     return accelSndTr
 
 # recieves the initial acceleration values of x and y
