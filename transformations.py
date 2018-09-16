@@ -6,16 +6,16 @@ import numpy as np
 def generateTransformationMatrices(accelX, accelY, accelZ, gyroX, gyroY, gyroZ):
     yMat = yTransform(accelX, accelZ)
 
-    accelFirstTr = yMat.dot(np.array([accelX,accelY,accelZ]))
-    #value of accelFirstTr in y must be 0
+    accelFirstTr = np.array([accelX,accelY,accelZ]).dot(yMat)
+    #value of accelFirstTr in x is 0
 
     xMat = xTransform(accelFirstTr[1], accelFirstTr[2])
 
-    accelSndTr = xMat.dot(np.array([accelFirstTr[0], accelFirstTr[1], accelFirstTr[2] ]))
-    #value of accelSndTr in x and y should be 0
+    accelSndTr = np.array([accelFirstTr[0], accelFirstTr[1], accelFirstTr[2]]).dot(xMat)
+    #value of accelSndTr in x and y are 0
 
-    gyroFirstTr = yMat.dot( np.array([gyroX,gyroY,gyroZ ]))
-    gyroSndTr = xMat.dot( np.array([gyroFirstTr[0],gyroFirstTr[1],gyroFirstTr[2] ]))
+    gyroFirstTr = np.array([gyroX,gyroY,gyroZ ]).dot(yMat)
+    gyroSndTr = np.array([gyroFirstTr[0],gyroFirstTr[1],gyroFirstTr[2]]).dot(xMat)
 
     zMat = zTransform(gyroSndTr[0], gyroSndTr[1])
 
@@ -42,3 +42,5 @@ def zTransform(gyroX, gyroY):
     alpha = np.arctan2(gyroX, gyroY)
     return np.array([[np.cos(alpha), np.sin(alpha), 0], [-np.sin(alpha), np.cos(alpha), 0], [0, 0, 1]])
 
+
+# generateTransformationMatrices(-2.2, 4.4, 8.5, 0,0,0)
