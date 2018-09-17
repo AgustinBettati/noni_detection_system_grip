@@ -93,7 +93,7 @@ def get_data_accelerometer():
 
         get_data_accelerometer2()
 
-        print("gyro ("+gx+", "+gy+","+gz+")")
+        print("gyro ("+str(gx)+", "+str(gy)+","+str(gz)+")")
         sleep(0.5)
 
 # Get acceleration data
