@@ -92,46 +92,46 @@ def get_data_accelerometer():
         ay_rot_values = np.append(ay_rot_values, values_rotated[1])
         az_rot_values = np.append(az_rot_values, values_rotated[2])
 
+        get_data_accelerometer2()
         sleep(0.5)
 
 # Get acceleration data
 def get_data_accelerometer2():
     global ax_values2, ay_values2, az_values2, time2, i2, ax_rot_values2, ay_rot_values2, az_rot_values2, x_mat2, y_mat2, z_mat2
 
-    while True:
-        accel_data2 = sensor2.get_accel_data()
 
-        ax = accel_data2['x']
-        ay = accel_data2['y']
-        az = accel_data2['z']
+    accel_data2 = sensor2.get_accel_data()
 
-        if x_mat2.size == 0 | y_mat2.size == 0 | z_mat2.size == 0:
-            gyro_data = sensor2.get_gyro_data()
-            gx = gyro_data['x']
-            gy = gyro_data['y']
-            gz = gyro_data['z']
+    ax = accel_data2['x']
+    ay = accel_data2['y']
+    az = accel_data2['z']
 
-            matrices = generateTransformationMatrices(ax, ay, az, gx, gy, gz)
+    if x_mat2.size == 0 | y_mat2.size == 0 | z_mat2.size == 0:
+        gyro_data = sensor2.get_gyro_data()
+        gx = gyro_data['x']
+        gy = gyro_data['y']
+        gz = gyro_data['z']
 
-            x_mat2 = matrices[0]
-            y_mat2 = matrices[1]
-            z_mat2 = matrices[2]
+        matrices = generateTransformationMatrices(ax, ay, az, gx, gy, gz)
+
+        x_mat2 = matrices[0]
+        y_mat2 = matrices[1]
+        z_mat2 = matrices[2]
 
 
-        # time2 = np.append(time2, dt.datetime.now().strftime('%f'))
-        values_rotated = applyTransformations([ax, ay, az], [x_mat2, y_mat2, z_mat2])
-        time2 = np.append(time2, i2)
-        i2 +=1
+    # time2 = np.append(time2, dt.datetime.now().strftime('%f'))
+    values_rotated = applyTransformations([ax, ay, az], [x_mat2, y_mat2, z_mat2])
+    time2 = np.append(time2, i2)
+    i2 +=1
 
-        ax_values2 = np.append(ax_values2, ax)
-        ay_values2 = np.append(ay_values2, ay)
-        az_values2 = np.append(az_values2, az)
+    ax_values2 = np.append(ax_values2, ax)
+    ay_values2 = np.append(ay_values2, ay)
+    az_values2 = np.append(az_values2, az)
 
-        ax_rot_values2 = np.append(ax_rot_values2, values_rotated[0])
-        ay_rot_values2 = np.append(ay_rot_values2, values_rotated[1])
-        az_rot_values2 = np.append(az_rot_values2, values_rotated[2])
+    ax_rot_values2 = np.append(ax_rot_values2, values_rotated[0])
+    ay_rot_values2 = np.append(ay_rot_values2, values_rotated[1])
+    az_rot_values2 = np.append(az_rot_values2, values_rotated[2])
 
-        sleep(0.5)
 
 # This function is called periodically from FuncAnimation
 def plot_acceleration(x):
@@ -211,7 +211,6 @@ def plot_acceleration2(x):
 def main():
     # the function get_data_accelerometer start in a new thread
     thread.start_new_thread( get_data_accelerometer, () )
-    thread.start_new_thread( get_data_accelerometer2, () )
 
     # Start the plot animation, with an interval of 1000ms
     ani = animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=5000)
