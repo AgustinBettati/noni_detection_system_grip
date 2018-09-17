@@ -5,7 +5,7 @@ import thread
 import datetime as dt
 from MPU6050 import MPU6050
 from time import sleep
-from transformations import xTransform, yTransform, zTransform, applyTransformations
+from transformations import xTransform, yTransform, zTransform, applyTransformations, generateTransformationMatrices
 
 
 # Create a new instance of the MPU6050 class
@@ -55,6 +55,7 @@ z_mat2 = np.empty(0)
 
 # Get acceleration data
 def get_data_accelerometer():
+
     global ax_values, ay_values, az_values, ax_rot_values, ay_rot_values, az_rot_values, time, i, x_mat, y_mat, z_mat
 
     while True:
@@ -69,9 +70,12 @@ def get_data_accelerometer():
             gx = gyro_data['x']
             gy = gyro_data['y']
             gz = gyro_data['z']
-            x_mat = xTransform(ay, az)
-            y_mat = yTransform(ax, az)
-            z_mat = zTransform(gx, gy)
+
+            matrices = generateTransformationMatrices(ax, ay,az, gx, gy, gz)
+
+            x_mat = matrices[0]
+            y_mat = matrices[1]
+            z_mat = matrices[2]
 
        #  time = np.append(time, dt.datetime.now().strftime('%f'))
         values_rotated = applyTransformations([ax, ay, az], [x_mat, y_mat, z_mat])
@@ -105,14 +109,17 @@ def get_data_accelerometer2():
             gx = gyro_data['x']
             gy = gyro_data['y']
             gz = gyro_data['z']
-            x_mat2 = xTransform(ay, az)
-            y_mat2 = yTransform(ax, az)
-            z_mat2 = zTransform(gx, gy)
+
+            matrices = generateTransformationMatrices(ax, ay, az, gx, gy, gz)
+
+            x_mat2 = matrices[0]
+            y_mat2 = matrices[1]
+            z_mat2 = matrices[2]
 
 
         # time2 = np.append(time2, dt.datetime.now().strftime('%f'))
-	values_rotated = applyTransformations([ax, ay, az], [x_mat2, y_mat2, z_mat2])
-	time2 = np.append(time2, i2)
+        values_rotated = applyTransformations([ax, ay, az], [x_mat2, y_mat2, z_mat2])
+        time2 = np.append(time2, i2)
         i2 +=1
 
         ax_values2 = np.append(ax_values2, ax)

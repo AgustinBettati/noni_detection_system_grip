@@ -19,6 +19,8 @@ def generateTransformationMatrices(accelX, accelY, accelZ, gyroX, gyroY, gyroZ):
 
     zMat = zTransform(gyroSndTr[0], gyroSndTr[1])
 
+    return [xMat,yMat,zMat]
+
 
 def applyTransformations(accels, matrices):
     accelFirstTr = np.array([accels[0], accels[1], accels[2]]).dot(matrices[1])
@@ -46,4 +48,4 @@ def zTransform(gyroX, gyroY):
     return np.array([[np.cos(alpha), np.sin(alpha), 0], [-np.sin(alpha), np.cos(alpha), 0], [0, 0, 1]])
 
 
-generateTransformationMatrices(-2.2, 4.4, 8.5, 0,0,0)
+# generateTransformationMatrices(-2.2, 4.4, 8.5, 0,0,0)
