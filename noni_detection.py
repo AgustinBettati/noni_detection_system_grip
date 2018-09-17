@@ -65,11 +65,12 @@ def get_data_accelerometer():
         ax = accel_data['x']
         ay = accel_data['y']
         az = accel_data['z']
+
+        gyro_data = sensor.get_gyro_data()
+        gx = gyro_data['x']
+        gy = gyro_data['y']
+        gz = gyro_data['z']
         if x_mat.size == 0 | y_mat.size == 0 | z_mat.size == 0:
-            gyro_data = sensor.get_gyro_data()
-            gx = gyro_data['x']
-            gy = gyro_data['y']
-            gz = gyro_data['z']
 
             matrices = generateTransformationMatrices(ax, ay,az, gx, gy, gz)
 
@@ -78,7 +79,7 @@ def get_data_accelerometer():
             z_mat = matrices[2]
 
        #  time = np.append(time, dt.datetime.now().strftime('%f'))
-        values_rotated = applyTransformations([ax, ay, az], [x_mat, y_mat, z_mat])
+        values_rotated = applyTransformations([ax, ay, az],[x_mat, y_mat, z_mat])
         time = np.append(time, i)
         i += 1
 
@@ -166,9 +167,7 @@ def plot_acceleration(x):
 
 def plot_acceleration2(x):
     global time2,ax_values2, ay_values2, az_values2, ax_rot_values2, ay_rot_values2, az_rot_values2
-    global ax_values2
-    global ay_values2
-    global az_values2
+
 
     if len(time2) == 0:
         return
@@ -176,22 +175,32 @@ def plot_acceleration2(x):
 
     # Limit x and y lists to 20 items
     ax_values2 = ax_values2[-20:]
+    ax_copy = ax_values2[-20:]
     ay_values2 = ay_values2[-20:]
+    ay_copy = ay_values2[-20:]
     az_values2 = az_values2[-20:]
+    az_copy = az_values2[-20:]
     ax_rot_values2 = ax_rot_values2[-20:]
+    ax_rot_copy = ax_rot_values2[-20:]
     ay_rot_values2 = ay_rot_values2[-20:]
+    ay_rot_copy = ay_rot_values2[-20:]
     az_rot_values2 = az_rot_values2[-20:]
+    az_rot_copy = az_rot_values2[-20:]
+
+
+
     time2 = time2[-20:]
+    time_copy = time2[-20:]
 
     # Draw x and y lists
     subplot2.clear()
-    subplot2.plot(time2, ax_values2, 'g')
-    subplot2.plot(time2, ay_values2, 'b')
-    subplot2.plot(time2, az_values2, 'r')
+    subplot2.plot(time_copy, ax_copy, 'g')
+    subplot2.plot(time_copy, ay_copy, 'b')
+    subplot2.plot(time_copy, az_copy, 'r')
     subplot4.clear()
-    subplot4.plot(time2, ax_rot_values2, 'g')
-    subplot4.plot(time2, ay_rot_values2, 'b')
-    subplot4.plot(time2, az_rot_values2, 'r')
+    subplot4.plot(time_copy, ax_rot_copy, 'g')
+    subplot4.plot(time_copy, ay_rot_copy, 'b')
+    subplot4.plot(time_copy, az_rot_copy, 'r')
 
     # Format plot
     subplot2.set_ylim([-15,15])
