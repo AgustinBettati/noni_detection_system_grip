@@ -73,7 +73,6 @@ def get_data_accelerometer():
         if x_mat.size == 0 | y_mat.size == 0 | z_mat.size == 0:
 
             matrices = generateTransformationMatrices(ax, ay,az, gx, gy, gz)
-
             x_mat = matrices[0]
             y_mat = matrices[1]
             z_mat = matrices[2]
@@ -93,6 +92,8 @@ def get_data_accelerometer():
         az_rot_values = np.append(az_rot_values, values_rotated[2])
 
         get_data_accelerometer2()
+
+        print("gyro ("+gx+", "+gy+","+gz+")")
         sleep(0.5)
 
 # Get acceleration data
