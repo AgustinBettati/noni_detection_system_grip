@@ -66,14 +66,14 @@ def get_data_accelerometer():
         ay = accel_data['y']
         az = accel_data['z']
 
-        gyro_data = sensor.get_gyro_data()
-        gx = gyro_data['x']
-        gy = gyro_data['y']
-        gz = gyro_data['z']
-        print("gyro 1 ("+str(gx - 3.1)+", "+str(gy -0.1)+","+str(gz +0.6)+")")
+
 
         if x_mat.size == 0 | y_mat.size == 0 | z_mat.size == 0:
-
+            gyro_data = sensor.get_gyro_data()
+            gx = gyro_data['x']
+            gy = gyro_data['y']
+            gz = gyro_data['z']
+            # print("gyro 1 (" + str(gx - 3.1) + ", " + str(gy - 0.1) + "," + str(gz + 0.6) + ")")
             matrices = generateTransformationMatrices(ax, ay,az, gx, gy, gz)
             x_mat = matrices[0]
             y_mat = matrices[1]
@@ -108,14 +108,14 @@ def get_data_accelerometer2():
     ay = accel_data2['y']
     az = accel_data2['z']
 
-    gyro_data = sensor2.get_gyro_data()
-    gx = gyro_data['x']
-    gy = gyro_data['y']
-    gz = gyro_data['z']
-    # print("gyro 2 ("+str(gx)+", "+str(gy)+","+str(gz)+")")
 
     if x_mat2.size == 0 | y_mat2.size == 0 | z_mat2.size == 0:
 
+        gyro_data = sensor2.get_gyro_data()
+        gx = gyro_data['x']
+        gy = gyro_data['y']
+        gz = gyro_data['z']
+        # print("gyro 2 ("+str(gx)+", "+str(gy)+","+str(gz)+")")
 
         matrices = generateTransformationMatrices(ax, ay, az, gx, gy, gz)
 
