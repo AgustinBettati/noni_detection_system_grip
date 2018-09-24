@@ -59,6 +59,7 @@ def get_data_accelerometer():
     global ax_values, ay_values, az_values, ax_rot_values, ay_rot_values, az_rot_values, time, i, x_mat, y_mat, z_mat
 
     while True:
+        
         accel_data = sensor.get_accel_data()
 
         # Need to be multiplied by the matrix

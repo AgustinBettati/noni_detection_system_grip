@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 
-def generateTransformationMatrices(accelX, accelY, accelZ, gyroX, gyroY, gyroZ):
+def generate_two_matrices(accelX, accelY, accelZ):
     yMat = yTransform(accelX, accelZ)
 
     accelFirstTr = np.array([accelX,accelY,accelZ]).dot(yMat)
@@ -11,15 +11,7 @@ def generateTransformationMatrices(accelX, accelY, accelZ, gyroX, gyroY, gyroZ):
 
     xMat = xTransform(accelFirstTr[1], accelFirstTr[2])
 
-    accelSndTr = np.array([accelFirstTr[0], accelFirstTr[1], accelFirstTr[2]]).dot(xMat)
-    #value of accelSndTr in x and y are 0
-
-    gyroFirstTr = np.array([gyroX,gyroY,gyroZ ]).dot(yMat)
-    gyroSndTr = np.array([gyroFirstTr[0],gyroFirstTr[1],gyroFirstTr[2]]).dot(xMat)
-
-    zMat = zTransform(gyroSndTr[0], gyroSndTr[1])
-
-    return [xMat,yMat,zMat]
+    return [xMat,yMat]
 
 
 def applyTransformations(accels, matrices):
@@ -42,10 +34,11 @@ def xTransform(acelY, acelZ):
     return np.array([[1, 0, 0], [0, np.cos(beta), np.sin(beta)], [0, -np.sin(beta), np.cos(beta)]])
 
 
-# receives the angular velocity components of x and y after two rotations
-# returns Rz matrix for the third transformation
-def zTransform(gyroX, gyroY):
-    alpha = np.arctan2(gyroX, gyroY)
+# receives the acceleration of the two sensors after two rotations
+# returns Rz matrix for the third transformation of the Accelerometer 1
+# to make the last transform accel1 * Rz
+def zTransform(acelX1, acelY1, acelX2, acelY2):
+    alpha = np.arctan2(acelX1*acelY2 - acelX2*acelY1, acelX1*acelX2 + acelY1*acelY2)
     return np.array([[np.cos(alpha), np.sin(alpha), 0], [-np.sin(alpha), np.cos(alpha), 0], [0, 0, 1]])
 
 
