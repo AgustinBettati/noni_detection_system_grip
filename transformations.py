@@ -1,12 +1,13 @@
 import math
 
 import numpy as np
+from noni_detection import Accel
 
 
-def generate_two_matrices(accelX, accelY, accelZ):
-    yMat = yTransform(accelX, accelZ)
+def generate_two_matrices(accel):
+    yMat = yTransform(accel.x, accel.z)
 
-    accelFirstTr = np.array([accelX,accelY,accelZ]).dot(yMat)
+    accelFirstTr = np.array([accel.x,accel.y,accel.z]).dot(yMat)
     #value of accelFirstTr in x is 0
 
     xMat = xTransform(accelFirstTr[1], accelFirstTr[2])
@@ -15,10 +16,10 @@ def generate_two_matrices(accelX, accelY, accelZ):
 
 
 def applyTransformations(accels, matrices):
-    accelFirstTr = np.array([accels[0], accels[1], accels[2]]).dot(matrices[1])
+    accelFirstTr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
     accelSndTr = np.array([accelFirstTr[0], accelFirstTr[1], accelFirstTr[2]]).dot(matrices[0])
     accelThirdTr = np.array([accelSndTr[0], accelSndTr[1], accelSndTr[2]]).dot(matrices[2])
-    return accelThirdTr
+    return Accel(accelFirstTr[0], accelFirstTr[1], accelFirstTr[2])
 
 # recieves the initial acceleration values of x and y
 # returns Ry matrix for the first transformation
