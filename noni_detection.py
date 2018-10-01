@@ -17,11 +17,11 @@ fig = plt.figure()
 subplot = fig.add_subplot(2, 2, 1)
 subplot2 = fig.add_subplot(2, 2, 2)
 
-# X axis
-i = 0
-i2 = 0
-time = np.empty(1)
-time2 = np.empty(1)
+# # X axis
+# i = 0
+# i2 = 0
+# time = np.empty(1)
+# time2 = np.empty(1)
 
 # Matrices
 x_mat = np.empty(0)
@@ -49,17 +49,32 @@ class Accel:
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
 def get_data_accelerometers():
+    print ("start accelerations")
     quantity = 0
-    acceleration_values = []
+    acceleration_values1 = []
     acceleration_values2 = []
 
     while quantity < data_quantity:
         now = datetime.datetime.now()
-        acceleration_values.append(get_data_accelerometer1())
+        acceleration_values1.append(get_data_accelerometer1())
         acceleration_values2.append(get_data_accelerometer2())
+        print (frequency - (datetime.datetime.now() - now).seconds)
         sleep(frequency - (datetime.datetime.now() - now).seconds)
-#     TODO do fourier
+    accelerations = substract_accels(acceleration_values1, acceleration_values2)
+    #     TODO do fourier
+    print (accelerations)
     get_data_accelerometers()
+
+
+def substract_accels(accel1, accel2):
+    accel = []
+    for i in range(len(accel1)):
+        x = accel1[i].x - accel2[i].x
+        y = accel1[i].y - accel2[i].y
+        z = accel1[i].z - accel2[i].z
+
+        accel.append(Accel(x, y, z))
+    return accel
 
 
 def initialization():
@@ -101,26 +116,22 @@ def get_first_matrices():
 # Rotate the acceleration values from the sensor 1 and appends them to the acceleration_values.
 def get_data_accelerometer1():
 
-    global time, i, x_mat, y_mat, z_mat
+    global x_mat, y_mat, z_mat
 
     accel = get_accel(sensor)
 
     values_rotated = apply_all_transformations(accel, [x_mat, y_mat, z_mat])
-    time = np.append(time, i)
-    i += 1
 
     return Accel(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 # Rotate the acceleration values from the sensor 2 and appends them to the acceleration_values.
 def get_data_accelerometer2():
-    global time2, i2, x_mat2, y_mat2
+    global x_mat2, y_mat2
 
     accel = get_accel(sensor2)
 
     values_rotated = apply_first_transformation(accel, [x_mat2, y_mat2])
-    time2 = np.append(time2, i2)
-    i2 += 1
 
     return Accel(values_rotated.x, values_rotated.y, values_rotated.z)
 
@@ -130,55 +141,55 @@ def get_accel(custom_sensor):
     accel_data = custom_sensor.get_accel_data()
     return Accel(accel_data['x'], accel_data['y'], accel_data['z'])
 
-
-# Plot the acceleration values and x axis from the sensor 1
-def plot_acceleration(x):
-    global time, acceleration_values
-
-    if len(time) == 0:
-        return
-
-    # Limit x and y lists to 20 items
-    acceleration_values_copy = acceleration_values[-20]
-    acceleration_values = acceleration_values[-20]
-    time = time[-20:]
-    time_copy = time[-20:]
-
-    # Draw x and y lists
-    subplot.clear()
-    subplot.plot(time_copy, acceleration_values_copy.x, 'g')
-    subplot.plot(time_copy, acceleration_values_copy.y, 'b')
-    subplot.plot(time_copy, acceleration_values_copy.z, 'r')
-
-    # Format plot
-    subplot.set_ylim([-15, 15])
-    plt.xticks(rotation=45, ha='right')
-    plt.subplots_adjust(bottom=0.30)
-
-
-# Plot the acceleration values and x axis from the sensor 2
-def plot_acceleration2(x):
-    global time2, acceleration_values2
-
-    if len(time2) == 0:
-        return
-
-    # Limit x and y lists to 20 items
-    acceleration_values_copy = acceleration_values2[-20]
-    acceleration_values2 = acceleration_values2[-20]
-    time2 = time2[-20:]
-    time_copy = time2[-20:]
-
-    # Draw x and y lists
-    subplot2.clear()
-    subplot2.plot(time_copy, acceleration_values_copy.x, 'g')
-    subplot2.plot(time_copy, acceleration_values_copy.y, 'b')
-    subplot2.plot(time_copy, acceleration_values_copy.z, 'r')
-
-    # Format plot
-    subplot2.set_ylim([-15, 15])
-    plt.xticks(rotation=45, ha='right')
-    plt.subplots_adjust(bottom=0.30)
+#
+# # Plot the acceleration values and x axis from the sensor 1
+# def plot_acceleration(x):
+#     global time, acceleration_values
+#
+#     if len(time) == 0:
+#         return
+#
+#     # Limit x and y lists to 20 items
+#     acceleration_values_copy = acceleration_values[-20]
+#     acceleration_values = acceleration_values[-20]
+#     time = time[-20:]
+#     time_copy = time[-20:]
+#
+#     # Draw x and y lists
+#     subplot.clear()
+#     subplot.plot(time_copy, acceleration_values_copy.x, 'g')
+#     subplot.plot(time_copy, acceleration_values_copy.y, 'b')
+#     subplot.plot(time_copy, acceleration_values_copy.z, 'r')
+#
+#     # Format plot
+#     subplot.set_ylim([-15, 15])
+#     plt.xticks(rotation=45, ha='right')
+#     plt.subplots_adjust(bottom=0.30)
+#
+#
+# # Plot the acceleration values and x axis from the sensor 2
+# def plot_acceleration2(x):
+#     global time2, acceleration_values2
+#
+#     if len(time2) == 0:
+#         return
+#
+#     # Limit x and y lists to 20 items
+#     acceleration_values_copy = acceleration_values2[-20]
+#     acceleration_values2 = acceleration_values2[-20]
+#     time2 = time2[-20:]
+#     time_copy = time2[-20:]
+#
+#     # Draw x and y lists
+#     subplot2.clear()
+#     subplot2.plot(time_copy, acceleration_values_copy.x, 'g')
+#     subplot2.plot(time_copy, acceleration_values_copy.y, 'b')
+#     subplot2.plot(time_copy, acceleration_values_copy.z, 'r')
+#
+#     # Format plot
+#     subplot2.set_ylim([-15, 15])
+#     plt.xticks(rotation=45, ha='right')
+#     plt.subplots_adjust(bottom=0.30)
 
 
 # Start the thread and the plotters
@@ -187,9 +198,9 @@ def main():
     thread.start_new_thread(initialization, ())
 
     # Start the plot animation, with an interval of 1000ms
-    ani = animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=5000)
-    ani2 = animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=5000)
-    plt.show()
+    # ani = animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=5000)
+    # ani2 = animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=5000)
+    # plt.show()
 
 
 main()
