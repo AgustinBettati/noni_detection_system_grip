@@ -13,9 +13,9 @@ sensor = MPU6050(0x68)
 sensor2 = MPU6050(0x69)
 
 # Variables for ploting
-fig = plt.figure()
-subplot = fig.add_subplot(2, 2, 1)
-subplot2 = fig.add_subplot(2, 2, 2)
+# fig = plt.figure()
+# subplot = fig.add_subplot(2, 2, 1)
+# subplot2 = fig.add_subplot(2, 2, 2)
 
 # # X axis
 # i = 0
