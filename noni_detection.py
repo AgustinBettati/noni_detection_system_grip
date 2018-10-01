@@ -52,11 +52,15 @@ def get_data_accelerometers():
         acceleration_values1.append(get_data_accelerometer1())
         acceleration_values2.append(get_data_accelerometer2())
         sleep(frequency - (datetime.datetime.now() - now).seconds)
-	quantity += 1
+    quantity += 1
     accelerations = substract_accels(acceleration_values1, acceleration_values2)
     #     TODO do fourier
-    print (accelerations)
+    map(print_accelerations, accelerations)
     get_data_accelerometers()
+
+
+def print_accelerations(accels):
+    print ("x: " + accels.x + ", y: " + accels.y + ", z: " + accels.z + "\n")
 
 
 def substract_accels(accel1, accel2):
@@ -88,7 +92,7 @@ def get_third_matrix():
         data_accelerometer2.append(apply_first_transformation(get_accel(sensor2), [x_mat2, y_mat2]))
         quantity += 1
         sleep(0.2)
-	print(quantity)
+    print(quantity)
     z_mat = zTransform(data_accelerometer, data_accelerometer2)
     print("Obtained third matrix")
 
