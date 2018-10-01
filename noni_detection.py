@@ -71,6 +71,7 @@ def substract_accels(accel1, accel2):
 
 
 def initialization():
+    print("initializing")
     get_first_matrices()
     get_third_matrix()
     get_data_accelerometers()
@@ -88,6 +89,7 @@ def get_third_matrix():
         quantity += 1
         sleep(200)
     z_mat = zTransform(data_accelerometer, data_accelerometer2)
+    print("Obtained third matrix")
 
 
 # defines matrix x and matrix y for the sensor 1 and 2
@@ -104,6 +106,7 @@ def get_first_matrices():
     matrices2 = generate_two_matrices(accel2)
     x_mat2 = matrices2[0]
     y_mat2 = matrices2[1]
+    print("Obtained first two matrices")
 
 
 # Rotate the acceleration values from the sensor 1 and appends them to the acceleration_values.
