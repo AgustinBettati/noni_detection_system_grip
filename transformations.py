@@ -34,12 +34,21 @@ def xTransform(acelY, acelZ):
     return np.array([[1, 0, 0], [0, np.cos(beta), np.sin(beta)], [0, -np.sin(beta), np.cos(beta)]])
 
 
-# receives the acceleration of the two sensors after two rotations
+# receives the accelerations of the two sensors after two rotations
 # returns Rz matrix for the third transformation of the Accelerometer 1
 # to make the last transform accel1 * Rz
-def zTransform(acelX1, acelY1, acelX2, acelY2):
-    alpha = np.arctan2(acelX1*acelY2 - acelX2*acelY1, acelX1*acelX2 + acelY1*acelY2)
+def zTransform(firstSensorValues, secondSensorValues):
+    alphaValues = []
+
+    for i in range (len(firstSensorValues)):
+        accel1 = firstSensorValues[i]
+        accel2 = secondSensorValues[i]
+
+        alpha = np.arctan2(accel1.x * accel2.y - accel2.x * accel1.y, accel1.x * accel2.x + accel1.y * accel2.y)
+        alphaValues.append(alpha)
+
+    alpha = sum(alphaValues) / len(alphaValues)
     return np.array([[np.cos(alpha), np.sin(alpha), 0], [-np.sin(alpha), np.cos(alpha), 0], [0, 0, 1]])
 
 
-# generateTransformationMatrices(-2.2, 4.4, 8.5, 0,0,0)
+# print( zTransform( [Accel(5,7.6,20.5),Accel(30.5,1.6,56.5)], [Accel(39.5,2.6,0.5), Accel(22.5,88.6,54.5)]) )
