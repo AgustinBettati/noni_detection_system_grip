@@ -61,7 +61,13 @@ def get_data_accelerometers():
 
 def print_accelerations(accels):
     for i in range(len(accels)):
-        print ("x: " + accels[i].x + ", y: " + accels[i].y + ", z: " + accels[i].z + "\n")
+        print ("x: ")
+        print(accels[i].x)
+        print (", y: ")
+        print (accels[i].y)
+        print (", z: ")
+        print (accels[i].z)
+        print ("\n")
 
 
 def substract_accels(accel1, accel2):
