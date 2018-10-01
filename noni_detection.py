@@ -55,6 +55,9 @@ def get_data_accelerometers():
         quantity += 1
     accelerations = substract_accels(acceleration_values1, acceleration_values2)
     #     TODO do fourier
+    print("Non substracted")
+    print_accelerations(acceleration_values1)
+    print ("Substracted")
     print_accelerations(accelerations)
     get_data_accelerometers()
 
