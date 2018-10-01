@@ -5,7 +5,7 @@ import thread
 import datetime as datetime
 from MPU6050 import MPU6050
 from time import sleep
-from transformations import apply_first_transformation, generate_two_matrices, apply_all_transformations, zTransform
+from transformations import apply_first_transformation, generate_two_matrices, apply_all_transformations, zTransform, Accel
 
 
 # Create a new instance of the MPU6050 class
@@ -38,13 +38,6 @@ frequency = 0.25
 
 # Quantity of accelerations to get before doing fourier
 data_quantity = 1000
-
-
-class Accel:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
 
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values

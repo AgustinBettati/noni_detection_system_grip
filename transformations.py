@@ -1,7 +1,13 @@
 import math
 
 import numpy as np
-from noni_detection import Accel
+
+
+class Accel:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
 
 
 def generate_two_matrices(accel):
