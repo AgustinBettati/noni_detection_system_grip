@@ -18,8 +18,7 @@ def generate_two_matrices(accel):
 def applyTransformations(accels, matrices):
     accelFirstTr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
     accelSndTr = np.array([accelFirstTr[0], accelFirstTr[1], accelFirstTr[2]]).dot(matrices[0])
-    accelThirdTr = np.array([accelSndTr[0], accelSndTr[1], accelSndTr[2]]).dot(matrices[2])
-    return Accel(accelFirstTr[0], accelFirstTr[1], accelFirstTr[2])
+    return Accel(accelSndTr[0], accelSndTr[1], accelSndTr[2])
 
 # recieves the initial acceleration values of x and y
 # returns Ry matrix for the first transformation
