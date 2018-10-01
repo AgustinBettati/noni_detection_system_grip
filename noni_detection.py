@@ -52,7 +52,7 @@ def get_data_accelerometers():
         acceleration_values1.append(get_data_accelerometer1())
         acceleration_values2.append(get_data_accelerometer2())
         sleep(frequency - (datetime.datetime.now() - now).seconds)
-    quantity += 1
+        quantity += 1
     accelerations = substract_accels(acceleration_values1, acceleration_values2)
     #     TODO do fourier
     print_accelerations(accelerations)
