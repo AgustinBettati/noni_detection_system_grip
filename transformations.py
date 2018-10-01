@@ -12,13 +12,21 @@ def generate_two_matrices(accel):
 
     xMat = xTransform(accelFirstTr[1], accelFirstTr[2])
 
-    return [xMat,yMat]
+    return [xMat, yMat]
 
 
-def applyTransformations(accels, matrices):
-    accelFirstTr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
-    accelSndTr = np.array([accelFirstTr[0], accelFirstTr[1], accelFirstTr[2]]).dot(matrices[0])
-    return Accel(accelSndTr[0], accelSndTr[1], accelSndTr[2])
+def apply_first_transformation(accels, matrices):
+    accel_first_tr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
+    accel_snd_tr = np.array([accel_first_tr[0], accel_first_tr[1], accel_first_tr[2]]).dot(matrices[0])
+    return Accel(accel_snd_tr[0], accel_snd_tr[1], accel_snd_tr[2])
+
+
+def apply_all_transformations(accels, matrices):
+    accel_first_tr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
+    accel_snd_tr = np.array([accel_first_tr[0], accel_first_tr[1], accel_first_tr[2]]).dot(matrices[0])
+    accel_third_tr = np.array([accel_snd_tr[0], accel_snd_tr[1], accel_snd_tr[2]]).dot(matrices[2])
+    return Accel(accel_third_tr[0], accel_third_tr[1], accel_third_tr[2])
+
 
 # recieves the initial acceleration values of x and y
 # returns Ry matrix for the first transformation

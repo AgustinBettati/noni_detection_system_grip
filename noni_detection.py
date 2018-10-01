@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import thread
-import datetime as dt
+import datetime as datetime
 from MPU6050 import MPU6050
 from time import sleep
-from transformations import xTransform, yTransform, zTransform, applyTransformations, generate_two_matrices
+from transformations import apply_first_transformation, generate_two_matrices, apply_all_transformations, zTransform
 
 
 # Create a new instance of the MPU6050 class
@@ -16,12 +16,6 @@ sensor2 = MPU6050(0x69)
 fig = plt.figure()
 subplot = fig.add_subplot(2, 2, 1)
 subplot2 = fig.add_subplot(2, 2, 2)
-
-# Acceleration from sensor
-acceleration_values = []
-
-# Acceleration from sensor2
-acceleration_values2 = []
 
 # X axis
 i = 0
@@ -35,10 +29,15 @@ y_mat = np.empty(0)
 z_mat = np.empty(0)
 x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
-z_mat2 = np.empty(0)
 
 # Quantity of values to calculate the third matrix
-third_matrix_values = 10
+third_matrix_values = 20
+
+# Interval between two accelerations in seconds
+frequency = 0.25
+
+# Quantity of accelerations to get before doing fourier
+data_quantity = 1000
 
 
 class Accel:
@@ -50,23 +49,37 @@ class Accel:
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
 def get_data_accelerometers():
+    quantity = 0
+    acceleration_values = []
+    acceleration_values2 = []
+
+    while quantity < data_quantity:
+        now = datetime.datetime.now()
+        acceleration_values.append(get_data_accelerometer1())
+        acceleration_values2.append(get_data_accelerometer2())
+        sleep(frequency - (datetime.datetime.now() - now).seconds)
+#     TODO do fourier
+    get_data_accelerometers()
+
+
+def initialization():
     get_first_matrices()
     get_third_matrix()
-    while True:
-        get_data_accelerometer1()
-        get_data_accelerometer2()
-        sleep(0.5)
+    get_data_accelerometers()
 
 
 # defines the matrix z for the sensor 1 and sensor 2
 def get_third_matrix():
+    global z_mat
     quantity = 0
     data_accelerometer = []
     data_accelerometer2 = []
     while quantity < third_matrix_values:
-        data_accelerometer.append(applyTransformations(get_accel(sensor), [x_mat, y_mat]))
-        data_accelerometer2.append(applyTransformations(get_accel(sensor2), [x_mat2, y_mat2]))
+        data_accelerometer.append(apply_first_transformation(get_accel(sensor), [x_mat, y_mat]))
+        data_accelerometer2.append(apply_first_transformation(get_accel(sensor2), [x_mat2, y_mat2]))
         quantity += 1
+        sleep(200)
+    z_mat = zTransform(data_accelerometer, data_accelerometer2)
 
 
 # defines matrix x and matrix y for the sensor 1 and 2
@@ -88,28 +101,28 @@ def get_first_matrices():
 # Rotate the acceleration values from the sensor 1 and appends them to the acceleration_values.
 def get_data_accelerometer1():
 
-    global acceleration_values, time, i, x_mat, y_mat, z_mat
+    global time, i, x_mat, y_mat, z_mat
 
     accel = get_accel(sensor)
 
-    values_rotated = applyTransformations(accel, [x_mat, y_mat, z_mat])
+    values_rotated = apply_all_transformations(accel, [x_mat, y_mat, z_mat])
     time = np.append(time, i)
     i += 1
 
-    acceleration_values.append(Accel(values_rotated.x, values_rotated.y, values_rotated.z))
+    return Accel(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 # Rotate the acceleration values from the sensor 2 and appends them to the acceleration_values.
 def get_data_accelerometer2():
-    global time2, i2, acceleration_values2, x_mat2, y_mat2, z_mat2
+    global time2, i2, x_mat2, y_mat2
 
     accel = get_accel(sensor2)
 
-    values_rotated = applyTransformations(accel, [x_mat2, y_mat2, z_mat2])
+    values_rotated = apply_first_transformation(accel, [x_mat2, y_mat2])
     time2 = np.append(time2, i2)
     i2 += 1
 
-    acceleration_values2.append(Accel(values_rotated.x, values_rotated.y, values_rotated.z))
+    return Accel(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 # Get the acceleration values from a specific sensor
@@ -171,7 +184,7 @@ def plot_acceleration2(x):
 # Start the thread and the plotters
 def main():
     # the function get_data_accelerometer start in a new thread
-    thread.start_new_thread(get_data_accelerometers, ())
+    thread.start_new_thread(initialization, ())
 
     # Start the plot animation, with an interval of 1000ms
     ani = animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=5000)
