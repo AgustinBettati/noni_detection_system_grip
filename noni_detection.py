@@ -55,12 +55,13 @@ def get_data_accelerometers():
     quantity += 1
     accelerations = substract_accels(acceleration_values1, acceleration_values2)
     #     TODO do fourier
-    map(print_accelerations, accelerations)
+    print_accelerations(accelerations)
     get_data_accelerometers()
 
 
 def print_accelerations(accels):
-    print ("x: " + accels.x + ", y: " + accels.y + ", z: " + accels.z + "\n")
+    for i in range(len(accels)):
+        print ("x: " + accels[i].x + ", y: " + accels[i].y + ", z: " + accels[i].z + "\n")
 
 
 def substract_accels(accel1, accel2):
