@@ -39,6 +39,12 @@ frequency = 0.25
 # Quantity of accelerations to get before doing fourier
 data_quantity = 10
 
+# Values after Fourier
+fourier_values = []
+#fourier_segment_length = 1000
+
+# Fourier X axis
+
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
 def get_data_accelerometers():
@@ -201,6 +207,26 @@ def get_accel(custom_sensor):
 #     subplot2.set_ylim([-15, 15])
 #     plt.xticks(rotation=45, ha='right')
 #     plt.subplots_adjust(bottom=0.30)
+
+
+# Plot fourier of segment of data
+def plot_fourier(unusedParam):
+    global fourier_values, frequency
+
+    # Number of sample points
+    N = fourier_values.size
+    #or N = fourier_segment_length, ie N = 600
+
+    # sample spacing
+    T = 1.0 / frequency
+
+    # returns evenly spaced numbers from 0 to N, with N*T increments
+    x = np.linspace(0.0, N * T, N)
+
+    xf = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
+
+    plt.plot(xf, 2.0/N * np.abs(fourier_values[0:N//2]))
+    plt.grid()
 
 
 # Start the thread and the plotters
