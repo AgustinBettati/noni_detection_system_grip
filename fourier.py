@@ -2,24 +2,36 @@ from scipy.fftpack import fft
 import numpy as np
 
 
+def apply_fourier(accels):
+    x_values = np.empty((0, len(accels)))
+    y_values = np.empty((0, len(accels)))
+    z_values = np.empty((0, len(accels)))
+
+    for accel in accels:
+        x_values = np.append(x_values, [accel.x])
+        y_values = np.append(y_values, [accel.y])
+        z_values = np.append(z_values, [accel.z])
+    return [fft(x_values), fft(y_values), fft(z_values)]
+
+
 def apply_fourier_x(accels):
     x_values = np.empty((0, len(accels)))
-    for acel in accels:
-        x_values = np.append(x_values, [acel.x])
+    for accel in accels:
+        x_values = np.append(x_values, [accel.x])
     return fft(x_values)
 
 
 def apply_fourier_y(accels):
     y_values = np.empty((0, len(accels)))
-    for acel in accels:
-        y_values = np.append(y_values, [acel.y])
+    for accel in accels:
+        y_values = np.append(y_values, [accel.y])
     return fft(y_values)
 
 
 def apply_fourier_z(accels):
     z_values = np.empty((0, len(accels)))
-    for acel in accels:
-        z_values = np.append(z_values, [acel.z])
+    for accel in accels:
+        z_values = np.append(z_values, [accel.z])
     return fft(z_values)
 
 # Cool Functional way of doing it. Could not make it work

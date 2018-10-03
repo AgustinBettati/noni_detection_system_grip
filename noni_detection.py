@@ -6,16 +6,15 @@ import datetime as datetime
 from MPU6050 import MPU6050
 from time import sleep
 from transformations import apply_first_transformation, generate_two_matrices, apply_all_transformations, zTransform, Accel
-
+from fourier import apply_fourier
 
 # Create a new instance of the MPU6050 class
 sensor = MPU6050(0x68)
 sensor2 = MPU6050(0x69)
 
 # Variables for ploting
-# fig = plt.figure()
-# subplot = fig.add_subplot(2, 2, 1)
-# subplot2 = fig.add_subplot(2, 2, 2)
+fig = plt.figure()
+subplot = fig.add_subplot(1, 1, 1)
 
 # # X axis
 # i = 0
@@ -31,7 +30,9 @@ x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
 
 # Quantity of values to calculate the third matrix
-third_matrix_values = 20
+third_matrix_values = 100
+# Interval between two accelerations when calculating the third matrix
+third_matrix_interval = 0.2
 
 # Interval between two accelerations in seconds
 frequency = 0.25
@@ -40,15 +41,13 @@ frequency = 0.25
 data_quantity = 10
 
 # Values after Fourier
-fourier_values = []
-#fourier_segment_length = 1000
-
-# Fourier X axis
+fourier_values = np.empty(0)
 
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
 def get_data_accelerometers():
-    print ("start accelerations")
+    global fourier_values
+    print ("start getting accelerations")
     quantity = 0
     acceleration_values1 = []
     acceleration_values2 = []
@@ -60,11 +59,10 @@ def get_data_accelerometers():
         sleep(frequency - (datetime.datetime.now() - now).seconds)
         quantity += 1
     accelerations = substract_accels(acceleration_values1, acceleration_values2)
-    #     TODO do fourier
-    print("Non substracted")
-    print_accelerations(acceleration_values1)
-    print ("Substracted")
-    print_accelerations(accelerations)
+    print ("accelerations subtracted, making fourier")
+    fourier = apply_fourier(accelerations)
+    fourier_values = np.append(fourier_values, fourier[0])
+    print ("finish fourier")
     get_data_accelerometers()
 
 
@@ -107,7 +105,7 @@ def get_third_matrix():
         data_accelerometer.append(apply_first_transformation(get_accel(sensor), [x_mat, y_mat]))
         data_accelerometer2.append(apply_first_transformation(get_accel(sensor2), [x_mat2, y_mat2]))
         quantity += 1
-        sleep(0.2)
+        sleep(third_matrix_interval)
     print(quantity)
     z_mat = zTransform(data_accelerometer, data_accelerometer2)
     print("Obtained third matrix")
@@ -158,88 +156,40 @@ def get_accel(custom_sensor):
     accel_data = custom_sensor.get_accel_data()
     return Accel(accel_data['x'], accel_data['y'], accel_data['z'])
 
-#
-# # Plot the acceleration values and x axis from the sensor 1
-# def plot_acceleration(x):
-#     global time, acceleration_values
-#
-#     if len(time) == 0:
-#         return
-#
-#     # Limit x and y lists to 20 items
-#     acceleration_values_copy = acceleration_values[-20]
-#     acceleration_values = acceleration_values[-20]
-#     time = time[-20:]
-#     time_copy = time[-20:]
-#
-#     # Draw x and y lists
-#     subplot.clear()
-#     subplot.plot(time_copy, acceleration_values_copy.x, 'g')
-#     subplot.plot(time_copy, acceleration_values_copy.y, 'b')
-#     subplot.plot(time_copy, acceleration_values_copy.z, 'r')
-#
-#     # Format plot
-#     subplot.set_ylim([-15, 15])
-#     plt.xticks(rotation=45, ha='right')
-#     plt.subplots_adjust(bottom=0.30)
-#
-#
-# # Plot the acceleration values and x axis from the sensor 2
-# def plot_acceleration2(x):
-#     global time2, acceleration_values2
-#
-#     if len(time2) == 0:
-#         return
-#
-#     # Limit x and y lists to 20 items
-#     acceleration_values_copy = acceleration_values2[-20]
-#     acceleration_values2 = acceleration_values2[-20]
-#     time2 = time2[-20:]
-#     time_copy = time2[-20:]
-#
-#     # Draw x and y lists
-#     subplot2.clear()
-#     subplot2.plot(time_copy, acceleration_values_copy.x, 'g')
-#     subplot2.plot(time_copy, acceleration_values_copy.y, 'b')
-#     subplot2.plot(time_copy, acceleration_values_copy.z, 'r')
-#
-#     # Format plot
-#     subplot2.set_ylim([-15, 15])
-#     plt.xticks(rotation=45, ha='right')
-#     plt.subplots_adjust(bottom=0.30)
-
 
 # Plot fourier of segment of data
-def plot_fourier(unusedParam):
-    global fourier_values, frequency
+def plot_fourier(unused_param):
+    global fourier_values
 
     # Number of sample points
-    N = fourier_values.size
-    #or N = fourier_segment_length, ie N = 600
+    n = fourier_values.size
+    # or N = fourier_segment_length, ie N = 600
 
     # sample spacing
-    T = 1.0 / frequency
+    t = 1.0 / frequency
 
-    # returns evenly spaced numbers from 0 to N, with N*T increments. (try instead of xf)
-    x = np.linspace(0.0, N * T, N)
+    # returns evenly spaced numbers from 0 to N, with n*t increments. (try instead of xf)
+    x = np.linspace(0.0, n * t, n)
 
     # no idea what this does, why not use x?
-    xf = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
+    xf = np.linspace(0.0, 1.0 / (2.0 * t), n // 2)
 
-    plt.plot(xf, 2.0/N * np.abs(fourier_values[0:N//2]))
+    plt.plot(xf, 2.0/n * np.abs(fourier_values[0:n//2]))
 
     plt.grid()
 
 
 # Start the thread and the plotters
 def main():
-    # the function get_data_accelerometer start in a new thread
+    # the function initialization start in a new thread
     thread.start_new_thread(initialization, ())
 
-    # Start the plot animation, with an interval of 1000ms
-    # ani = animation.FuncAnimation(fig, plot_acceleration, fargs=([]), interval=5000)
-    # ani2 = animation.FuncAnimation(fig, plot_acceleration2, fargs=([]), interval=5000)
-    # plt.show()
+    # refresh time for the animation plotter. Extra 10 ms to ensure the update of the data.
+    interval = (data_quantity * frequency) / 1000 + 10
+
+    # start the plot animation
+    ani = animation.FuncAnimation(fig, plot_fourier, fargs=([]), interval=interval)
+    plt.show()
 
 
 initialization()
