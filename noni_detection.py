@@ -5,7 +5,8 @@ import thread
 import datetime as datetime
 from MPU6050 import MPU6050
 from time import sleep
-from transformations import apply_first_transformation, generate_two_matrices, apply_all_transformations, zTransform, Accel
+from transformations import apply_first_transformation, generate_two_matrices, \
+    apply_all_transformations, z_transform, Accel
 from fourier import apply_fourier
 
 # Create a new instance of the MPU6050 class
@@ -15,12 +16,6 @@ sensor2 = MPU6050(0x69)
 # Variables for ploting
 fig = plt.figure()
 subplot = fig.add_subplot(1, 1, 1)
-
-# # X axis
-# i = 0
-# i2 = 0
-# time = np.empty(1)
-# time2 = np.empty(1)
 
 # Matrices
 x_mat = np.empty(0)
@@ -58,7 +53,7 @@ def get_data_accelerometers():
         acceleration_values2.append(get_data_accelerometer2())
         sleep(frequency - (datetime.datetime.now() - now).seconds)
         quantity += 1
-    accelerations = substract_accels(acceleration_values1, acceleration_values2)
+    accelerations = subtract_accels(acceleration_values1, acceleration_values2)
     print ("accelerations subtracted, making fourier")
     fourier = apply_fourier(accelerations)
     fourier_values = fourier[0]
@@ -66,6 +61,7 @@ def get_data_accelerometers():
     get_data_accelerometers()
 
 
+# print accelerations, just for testing purposes
 def print_accelerations(accels):
     for i in range(len(accels)):
         print ("x: ")
@@ -77,7 +73,8 @@ def print_accelerations(accels):
         print ("\n")
 
 
-def substract_accels(accel1, accel2):
+# Subtract one array of acceleration with another one
+def subtract_accels(accel1, accel2):
     accel = []
     for i in range(len(accel1)):
         x = accel1[i].x - accel2[i].x
@@ -86,13 +83,6 @@ def substract_accels(accel1, accel2):
 
         accel.append(Accel(x, y, z))
     return accel
-
-
-def initialization():
-    print("initializing")
-    get_first_matrices()
-    get_third_matrix()
-    get_data_accelerometers()
 
 
 # defines the matrix z for the sensor 1 and sensor 2
@@ -108,7 +98,7 @@ def get_third_matrix():
         quantity += 1
         sleep(third_matrix_interval)
     print(quantity)
-    z_mat = zTransform(data_accelerometer, data_accelerometer2)
+    z_mat = z_transform(data_accelerometer, data_accelerometer2)
     print("Obtained third matrix")
 
 
@@ -186,6 +176,14 @@ def plot_fourier(unused_param):
     plt.subplots_adjust(bottom=0.30)
     plt.title('Fourier')
     plt.ylabel('g')
+
+
+# Get the matrices and start the data collection loop
+def initialization():
+    print("initializing")
+    get_first_matrices()
+    get_third_matrix()
+    get_data_accelerometers()
 
 
 # Start the thread and the plotters

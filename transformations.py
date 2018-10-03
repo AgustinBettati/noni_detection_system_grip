@@ -11,14 +11,14 @@ class Accel:
 
 
 def generate_two_matrices(accel):
-    yMat = yTransform(accel.x, accel.z)
+    y_mat = y_transform(accel.x, accel.z)
 
-    accelFirstTr = np.array([accel.x,accel.y,accel.z]).dot(yMat)
-    #value of accelFirstTr in x is 0
+    accel_first_tr = np.array([accel.x, accel.y, accel.z]).dot(y_mat)
+    # value of accelFirstTr in x is 0
 
-    xMat = xTransform(accelFirstTr[1], accelFirstTr[2])
+    x_mat = x_transform(accel_first_tr[1], accel_first_tr[2])
 
-    return [xMat, yMat]
+    return [x_mat, y_mat]
 
 
 def apply_first_transformation(accels, matrices):
@@ -34,34 +34,34 @@ def apply_all_transformations(accels, matrices):
     return Accel(accel_third_tr[0], accel_third_tr[1], accel_third_tr[2])
 
 
-# recieves the initial acceleration values of x and y
+# receives the initial acceleration values of x and y
 # returns Ry matrix for the first transformation
-def yTransform(acelX, acelZ):
-    alpha = np.arctan2(acelX, acelZ)
+def y_transform(accel_x, accel_z):
+    alpha = np.arctan2(accel_x, accel_z)
     return np.array([[np.cos(alpha), 0, np.sin(alpha)], [0, 1, 0], [-np.sin(alpha), 0, np.cos(alpha)]])
 
 
-# recieves the acceleration of y and z after first transformation, x is cero at this point
+# receives the acceleration of y and z after first transformation, x is cero at this point
 # returns Rx matrix for the second transformation
-def xTransform(acelY, acelZ):
-    beta = np.arctan2(acelY, acelZ)
+def x_transform(accel_y, accel_z):
+    beta = np.arctan2(accel_y, accel_z)
     return np.array([[1, 0, 0], [0, np.cos(beta), np.sin(beta)], [0, -np.sin(beta), np.cos(beta)]])
 
 
 # receives the accelerations of the two sensors after two rotations
 # returns Rz matrix for the third transformation of the Accelerometer 1
 # to make the last transform accel1 * Rz
-def zTransform(firstSensorValues, secondSensorValues):
-    alphaValues = []
+def z_transform(first_sensor_values, second_sensor_values):
+    alpha_values = []
 
-    for i in range (len(firstSensorValues)):
-        accel1 = firstSensorValues[i]
-        accel2 = secondSensorValues[i]
+    for i in range (len(first_sensor_values)):
+        accel1 = first_sensor_values[i]
+        accel2 = second_sensor_values[i]
 
         alpha = np.arctan2(accel1.x * accel2.y - accel2.x * accel1.y, accel1.x * accel2.x + accel1.y * accel2.y)
-        alphaValues.append(alpha)
+        alpha_values.append(alpha)
 
-    alpha = sum(alphaValues) / len(alphaValues)
+    alpha = sum(alpha_values) / len(alpha_values)
     return np.array([[np.cos(alpha), np.sin(alpha), 0], [-np.sin(alpha), np.cos(alpha), 0], [0, 0, 1]])
 
 
