@@ -38,7 +38,7 @@ third_matrix_interval = 0.2
 frequency = 0.25
 
 # Quantity of accelerations to get before doing fourier
-data_quantity = 10
+data_quantity = 100
 
 # Values after Fourier
 fourier_values = np.empty(0)
@@ -61,7 +61,7 @@ def get_data_accelerometers():
     accelerations = substract_accels(acceleration_values1, acceleration_values2)
     print ("accelerations subtracted, making fourier")
     fourier = apply_fourier(accelerations)
-    fourier_values = np.append(fourier_values, fourier[0])
+    fourier_values = fourier[0]
     print ("finish fourier")
     get_data_accelerometers()
 
@@ -98,6 +98,7 @@ def initialization():
 # defines the matrix z for the sensor 1 and sensor 2
 def get_third_matrix():
     global z_mat
+    print("getting third matrix, please move the accelerometers")
     quantity = 0
     data_accelerometer = []
     data_accelerometer2 = []
@@ -161,6 +162,9 @@ def get_accel(custom_sensor):
 def plot_fourier(unused_param):
     global fourier_values
 
+    if len(fourier_values) == 0 :
+        return
+
     # Number of sample points
     n = fourier_values.size
     # or N = fourier_segment_length, ie N = 600
@@ -173,10 +177,15 @@ def plot_fourier(unused_param):
 
     # no idea what this does, why not use x?
     xf = np.linspace(0.0, 1.0 / (2.0 * t), n // 2)
+    
+    subplot.clear()
+    subplot.plot(xf, 2.0/n * np.abs(fourier_values[0:n//2]), 'g')
+    subplot.grid()
 
-    plt.plot(xf, 2.0/n * np.abs(fourier_values[0:n//2]))
-
-    plt.grid()
+    plt.xticks(rotation=45, ha='right')
+    plt.subplots_adjust(bottom=0.30)
+    plt.title('Fourier')
+    plt.ylabel('g')
 
 
 # Start the thread and the plotters
@@ -185,11 +194,11 @@ def main():
     thread.start_new_thread(initialization, ())
 
     # refresh time for the animation plotter. Extra 10 ms to ensure the update of the data.
-    interval = (data_quantity * frequency) / 1000 + 10
+    interval = 5000
 
     # start the plot animation
     ani = animation.FuncAnimation(fig, plot_fourier, fargs=([]), interval=interval)
     plt.show()
 
 
-initialization()
+main()
