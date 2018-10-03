@@ -220,12 +220,14 @@ def plot_fourier(unusedParam):
     # sample spacing
     T = 1.0 / frequency
 
-    # returns evenly spaced numbers from 0 to N, with N*T increments
+    # returns evenly spaced numbers from 0 to N, with N*T increments. (try instead of xf)
     x = np.linspace(0.0, N * T, N)
 
+    # no idea what this does, why not use x?
     xf = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
 
     plt.plot(xf, 2.0/N * np.abs(fourier_values[0:N//2]))
+
     plt.grid()
 
 

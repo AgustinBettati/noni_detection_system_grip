@@ -37,24 +37,32 @@ def plot_fourier():
 
 
 def test_fourier_functions():
-    y = np.array([])
+    y = np.empty((0, 1000))
     i = 1
     while i <= 1000:
-        np.append(y, np.array([Accel(np.random.random_sample(), 0, 0)]))
+        y = np.append(y, np.array([Accel(np.random.random_sample(), 0, 0)]))
         i = i + 1
 
-    print(y)
     yf = apply_fourier_x(y)
     print(yf)
+
+
+def not_functional():
+    array = [Accel(np.random.random_sample(), 0, 0), Accel(np.random.random_sample(), 0, 0),
+             Accel(np.random.random_sample(), 0, 0)]
+    x_values = np.empty((0, 3))
+    for item in array:
+        print(item.x)
+        x_values = np.append(x_values, [item.x])
+
+    print(x_values)
 
 
 # Start the thread and the plotters
 def main():
     #plot_fourier()
     #plt.show()
-    #test_fourier_functions()
-    array = [Accel(np.random.random_sample(), 0, 0), Accel(np.random.random_sample(), 0, 0), Accel(np.random.random_sample(), 0, 0)]
-    x_values = map(lambda y: y.x, array)
-    print(x_values)
+    test_fourier_functions()
+
 
 main()
