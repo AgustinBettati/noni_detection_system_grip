@@ -47,6 +47,8 @@ time_limit_of_recalibration = 120
 
 time_last_calibration = 0.0
 
+# min magnitude value of aceleration to calculate 3rd matrix
+min_magnitude = 15
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
 def get_data_accelerometers():
@@ -108,8 +110,17 @@ def subtract_accels(accel1, accel2):
 
 # defines the matrix z for the sensor 1 and sensor 2
 def get_third_matrix():
-    global z_mat
+    global z_mat, min_magnitude
+
     print("getting third matrix, please move the accelerometers")
+
+    # Test magnitude of acceleration is bigger than a pre-established value
+    b1 = True
+    while (b1):
+        acel_raw = get_accel(sensor)
+        magnitude = np.sqrt(np.power(acel_raw.x, 2) + np.power(acel_raw.y, 2) + np.power(acel_raw.z, 2))
+        b1 = magnitude < min_magnitude
+
     quantity = 0
     data_accelerometer = []
     data_accelerometer2 = []

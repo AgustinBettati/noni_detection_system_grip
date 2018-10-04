@@ -58,11 +58,18 @@ def not_functional():
     print(x_values)
 
 
+def testMagnitude():
+    acel_raw = Accel(1, 2, 3)
+    magnitude = np.sqrt(np.power(acel_raw.x, 2) + np.power(acel_raw.y, 2) + np.power(acel_raw.z, 2))
+    print(magnitude)
+
+
 # Start the thread and the plotters
 def main():
     #plot_fourier()
     #plt.show()
-    test_fourier_functions()
+    # test_fourier_functions()
+    testMagnitude()
 
 
 main()
