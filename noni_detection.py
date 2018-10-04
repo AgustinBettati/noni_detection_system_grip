@@ -5,6 +5,7 @@ import thread
 import datetime as datetime
 from MPU6050 import MPU6050
 from time import sleep
+import time
 from transformations import apply_first_transformation, generate_two_matrices, \
     apply_all_transformations, z_transform, Accel
 from fourier import apply_fourier
@@ -38,19 +39,39 @@ data_quantity = 100
 # Values after Fourier
 fourier_values = np.empty(0)
 
+# min value of module of acceleration to begin a recalibration
+tolerance_of_recalibration = 500
+
+# min amount of time until new calibration can be made (seconds)
+time_limit_of_recalibration = 120
+
+time_last_calibration = 0.0
+
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
 def get_data_accelerometers():
     global fourier_values
+    global time_last_calibration
     print ("start getting accelerations")
     quantity = 0
     acceleration_values1 = []
     acceleration_values2 = []
 
+    tryCalibration = False
+    if(time.time() - time_last_calibration > time_limit_of_recalibration):
+        tryCalibration = True
+
     while quantity < data_quantity:
         now = datetime.datetime.now()
-        acceleration_values1.append(get_data_accelerometer1())
-        acceleration_values2.append(get_data_accelerometer2())
+        accel1 = get_data_accelerometer1()
+        accel2 = get_data_accelerometer2()
+        if(tryCalibration and accel1.module() > tolerance_of_recalibration):
+            print("Starting recalibration of third matrix")
+            get_third_matrix()
+            get_data_accelerometers()
+            time_last_calibration = time.time()
+        acceleration_values1.append(accel1)
+        acceleration_values2.append(accel2)
         sleep(frequency - (datetime.datetime.now() - now).seconds)
         quantity += 1
     accelerations = subtract_accels(acceleration_values1, acceleration_values2)
@@ -180,9 +201,12 @@ def plot_fourier(unused_param):
 
 # Get the matrices and start the data collection loop
 def initialization():
+    global time_last_calibration
+
     print("initializing")
     get_first_matrices()
     get_third_matrix()
+    time_last_calibration = time.time()
     get_data_accelerometers()
 
 

@@ -9,6 +9,9 @@ class Accel:
         self.y = y
         self.z = z
 
+    def module(self):
+        return self.x ** 2 + self.y ** 2 + self.z ** 2
+
 
 def generate_two_matrices(accel):
     y_mat = y_transform(accel.x, accel.z)
