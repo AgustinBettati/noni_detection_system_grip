@@ -16,9 +16,10 @@ sensor2 = MPU6050(0x69)
 
 # Variables for plotting
 fig = plt.figure()
-subplot = fig.add_subplot(2, 2, 1)
-subplot2 = fig.add_subplot(2, 2, 1)
-subplot3 = fig.add_subplot(2, 2, 1)
+subplot = fig.add_subplot(1, 1, 1)
+fig2 = plt.figure()
+subplot2 = fig2.add_subplot(2, 1, 1)
+subplot3 = fig2.add_subplot(2, 1, 2)
 
 # Matrices
 x_mat = np.empty(0)
@@ -28,9 +29,9 @@ x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
 
 # Quantity of values to calculate the third matrix
-third_matrix_values = 100
+third_matrix_values = 1000
 # Interval between two accelerations when calculating the third matrix
-third_matrix_interval = 0.2
+third_matrix_interval = 0.05
 
 # Interval between two accelerations in seconds
 frequency = 0.25
@@ -80,10 +81,14 @@ def get_data_accelerometers():
         acceleration_values2.append(accel2)
         sleep(frequency - (datetime.datetime.now() - now).seconds)
         quantity += 1
-    raw_acceleration_values = acceleration_values1
-    subtracted_acceleration_values = subtract_accels(acceleration_values1, acceleration_values2)
+    subtracted_accelerations = subtract_accels(acceleration_values1, acceleration_values2)
+
+    # For plotting
+    raw_acceleration_values = accelerations_to_array(acceleration_values1)
+    subtracted_acceleration_values = accelerations_to_array(subtracted_accelerations)
+
     print ("accelerations subtracted, making fourier")
-    fourier_values = apply_fourier(subtracted_acceleration_values)
+    fourier_values = apply_fourier(subtracted_accelerations)
     print ("finish fourier")
     get_data_accelerometers()
 
@@ -116,7 +121,7 @@ def subtract_accels(accel1, accel2):
 def get_third_matrix():
     global z_mat, min_magnitude
 
-    print("getting third matrix, please move the accelerometers")
+    print("please move the accelerometers")
 
     # Test magnitude of acceleration is bigger than a pre-established value
     b1 = True
@@ -125,6 +130,7 @@ def get_third_matrix():
         magnitude = np.sqrt(np.power(acel_raw.x, 2) + np.power(acel_raw.y, 2) + np.power(acel_raw.z, 2))
         b1 = magnitude < min_magnitude
 
+    print("getting third matrix")
     quantity = 0
     data_accelerometer = []
     data_accelerometer2 = []
@@ -132,8 +138,8 @@ def get_third_matrix():
         data_accelerometer.append(apply_first_transformation(get_accel(sensor), [x_mat, y_mat]))
         data_accelerometer2.append(apply_first_transformation(get_accel(sensor2), [x_mat2, y_mat2]))
         quantity += 1
+        print(third_matrix_values - quantity)
         sleep(third_matrix_interval)
-    print(quantity)
     z_mat = z_transform(data_accelerometer, data_accelerometer2)
     print("Obtained third matrix")
 
@@ -192,7 +198,7 @@ def plot_fourier(unused_param):
         return
 
     # Number of sample points
-    n = fourier_values.size
+    n = fourier_values[0].size
     # or N = fourier_segment_length, ie N = 600
 
     # sample spacing
@@ -209,7 +215,7 @@ def plot_fourier(unused_param):
     subplot.plot(xf, 2.0/n * np.abs(fourier_values[1][0:n//2]), 'r')
     subplot.plot(xf, 2.0/n * np.abs(fourier_values[2][0:n//2]), 'b')
     subplot.grid()
-    subplot.title('Fourier')
+    subplot.set_title('Fourier')
 
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.30)
@@ -223,18 +229,31 @@ def plot_accelerations(x):
     x_axis = np.linspace(1, data_quantity, data_quantity)
 
     subplot2.clear()
-    subplot2.plot(raw_acceleration_values[0], x_axis, 'g')
-    subplot2.plot(raw_acceleration_values[1], x_axis, 'r')
-    subplot2.plot(raw_acceleration_values[2], x_axis, 'b')
+    subplot2.plot(x_axis, raw_acceleration_values[0], 'g')
+    subplot2.plot(x_axis, raw_acceleration_values[1], 'r')
+    subplot2.plot(x_axis, raw_acceleration_values[2], 'b')
     subplot2.grid()
-    subplot2.title('Raw accelerations')
+    subplot2.set_ylim(-15, 15)
+    subplot2.set_title("Raw accelerations")
 
     subplot3.clear()
-    subplot3.plot(subtracted_acceleration_values[0], x_axis, 'g')
-    subplot3.plot(subtracted_acceleration_values[1], x_axis, 'r')
-    subplot3.plot(subtracted_acceleration_values[2], x_axis, 'b')
+    subplot3.plot(x_axis, subtracted_acceleration_values[0], 'g')
+    subplot3.plot(x_axis, subtracted_acceleration_values[1], 'r')
+    subplot3.plot(x_axis, subtracted_acceleration_values[2], 'b')
     subplot3.grid()
-    subplot3.title('Subtracted accelerations')
+    subplot3.set_ylim(-15, 15)
+    subplot3.set_title("Subtracted accelerations")
+
+
+def accelerations_to_array(accelerations):
+    x = np.empty(0)
+    y = np.empty(0)
+    z = np.empty(0)
+    for i in range(len(accelerations)):
+        x = np.append(x, accelerations[i].x)
+        y = np.append(y, accelerations[i].y)
+        z = np.append(z, accelerations[i].z)
+    return [x, y, z]
 
 
 # Get the matrices and start the data collection loop
@@ -254,11 +273,11 @@ def main():
     thread.start_new_thread(initialization, ())
 
     # refresh time for the animation plotter. Extra 10 ms to ensure the update of the data.
-    interval = 5000
+    interval = 10000
 
     # start the plot animation
     ani = animation.FuncAnimation(fig, plot_fourier, fargs=([]), interval=interval)
-    ani = animation.FuncAnimation(fig, plot_accelerations, fargs=([]), interval=interval)
+    ani2 = animation.FuncAnimation(fig2, plot_accelerations, fargs=([]), interval=interval)
     plt.show()
 
 
