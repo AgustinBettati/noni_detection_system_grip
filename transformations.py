@@ -57,7 +57,7 @@ def x_transform(accel_y, accel_z):
 def z_transform(first_sensor_values, second_sensor_values):
     alpha_values = []
 
-    for i in range (len(first_sensor_values)):
+    for i in range(len(first_sensor_values)):
         accel1 = first_sensor_values[i]
         accel2 = second_sensor_values[i]
 
