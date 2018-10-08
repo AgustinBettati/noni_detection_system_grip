@@ -40,7 +40,7 @@ third_matrix_interval = 0.05
 frequency = 0.2
 
 # Quantity of accelerations to get before doing fourier
-data_quantity = 100
+data_quantity = 500
 
 # Values for plotting: fourier, raw accelerations and accelerations subtracted
 fourier_values = np.empty(0)
@@ -142,8 +142,8 @@ def get_third_matrix():
     while quantity < third_matrix_values:
         data_accelerometer.append(apply_first_transformation(get_accel(sensor), [x_mat, y_mat]))
         data_accelerometer2.append(apply_first_transformation(get_accel(sensor2), [x_mat2, y_mat2]))
+        print("{}%".format(int((1 - ((third_matrix_values - quantity) / float(third_matrix_values))) * 100)))
         quantity += 1
-        print(third_matrix_values - quantity)
         sleep(third_matrix_interval)
     z_mat = z_transform(data_accelerometer, data_accelerometer2)
     print("Obtained third matrix")
