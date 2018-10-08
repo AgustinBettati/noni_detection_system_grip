@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.gridspec as gridspec
 import thread
 import datetime as datetime
 from MPU6050 import MPU6050
@@ -18,8 +19,10 @@ sensor2 = MPU6050(0x69)
 fig = plt.figure()
 subplot = fig.add_subplot(1, 1, 1)
 fig2 = plt.figure()
-subplot2 = fig2.add_subplot(2, 1, 1)
-subplot3 = fig2.add_subplot(2, 1, 2)
+gs = gridspec.GridSpec(2, 2)
+subplot2 = fig2.add_subplot(gs[0, 0])
+subplot3 = fig2.add_subplot(gs[0, 1])
+subplot4 = fig2.add_subplot(gs[1, :])
 
 # Matrices
 x_mat = np.empty(0)
@@ -34,7 +37,7 @@ third_matrix_values = 1000
 third_matrix_interval = 0.05
 
 # Interval between two accelerations in seconds
-frequency = 0.25
+frequency = 0.2
 
 # Quantity of accelerations to get before doing fourier
 data_quantity = 100
@@ -42,13 +45,14 @@ data_quantity = 100
 # Values for plotting: fourier, raw accelerations and accelerations subtracted
 fourier_values = np.empty(0)
 raw_acceleration_values = np.empty(0)
+raw_acceleration_values2 = np.empty(0)
 subtracted_acceleration_values = np.empty(0)
 
 # min value of module of acceleration to begin a recalibration
-tolerance_of_recalibration = 500
+tolerance_of_recalibration = 15
 
 # min amount of time until new calibration can be made (seconds)
-time_limit_of_recalibration = 120
+time_limit_of_recalibration = 60 * 10
 
 time_last_calibration = 0.0
 
@@ -58,7 +62,7 @@ min_magnitude = 15
 
 # Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
 def get_data_accelerometers():
-    global fourier_values, time_last_calibration, raw_acceleration_values, subtracted_acceleration_values
+    global fourier_values, time_last_calibration, raw_acceleration_values, raw_acceleration_values2, subtracted_acceleration_values
     print ("start getting accelerations")
     quantity = 0
     acceleration_values1 = []
@@ -85,6 +89,7 @@ def get_data_accelerometers():
 
     # For plotting
     raw_acceleration_values = accelerations_to_array(acceleration_values1)
+    raw_acceleration_values2 = accelerations_to_array(acceleration_values2)
     subtracted_acceleration_values = accelerations_to_array(subtracted_accelerations)
 
     print ("accelerations subtracted, making fourier")
@@ -234,15 +239,20 @@ def plot_accelerations(x):
     subplot2.plot(x_axis, raw_acceleration_values[2], 'b')
     subplot2.grid()
     subplot2.set_ylim(-15, 15)
-    subplot2.set_title("Raw accelerations")
 
     subplot3.clear()
-    subplot3.plot(x_axis, subtracted_acceleration_values[0], 'g')
-    subplot3.plot(x_axis, subtracted_acceleration_values[1], 'r')
-    subplot3.plot(x_axis, subtracted_acceleration_values[2], 'b')
+    subplot3.plot(x_axis, raw_acceleration_values2[0], 'g')
+    subplot3.plot(x_axis, raw_acceleration_values2[1], 'r')
+    subplot3.plot(x_axis, raw_acceleration_values2[2], 'b')
     subplot3.grid()
     subplot3.set_ylim(-15, 15)
-    subplot3.set_title("Subtracted accelerations")
+
+    subplot4.clear()
+    subplot4.plot(x_axis, subtracted_acceleration_values[0], 'g')
+    subplot4.plot(x_axis, subtracted_acceleration_values[1], 'r')
+    subplot4.plot(x_axis, subtracted_acceleration_values[2], 'b')
+    subplot4.grid()
+    subplot4.set_ylim(-15, 15)
 
 
 def accelerations_to_array(accelerations):
@@ -273,7 +283,7 @@ def main():
     thread.start_new_thread(initialization, ())
 
     # refresh time for the animation plotter. Extra 10 ms to ensure the update of the data.
-    interval = 10000
+    interval = 5000
 
     # start the plot animation
     ani = animation.FuncAnimation(fig, plot_fourier, fargs=([]), interval=interval)
