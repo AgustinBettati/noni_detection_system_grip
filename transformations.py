@@ -65,8 +65,6 @@ def z_transform(first_sensor_values, second_sensor_values):
         alpha_values.append(alpha)
 
     alpha = sum(alpha_values) / len(alpha_values)
-    print("third matrix alpha: ")
-    print (alpha)
     return np.array([[np.cos(alpha), np.sin(alpha), 0], [-np.sin(alpha), np.cos(alpha), 0], [0, 0, 1]])
 
 # print( zTransform( [Accel(5,7.6,20.5),Accel(30.5,1.6,56.5)], [Accel(39.5,2.6,0.5), Accel(22.5,88.6,54.5)]) )

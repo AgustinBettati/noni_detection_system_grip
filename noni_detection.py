@@ -32,15 +32,15 @@ x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
 
 # Quantity of values to calculate the third matrix
-third_matrix_values = 1000
+third_matrix_values = 500
 # Interval between two accelerations when calculating the third matrix
 third_matrix_interval = 0.05
 
 # Interval between two accelerations in seconds
-frequency = 0.2
+interval = 0.1
 
 # Quantity of accelerations to get before doing fourier
-data_quantity = 500
+data_quantity = 60
 
 # Values for plotting: fourier, raw accelerations and accelerations subtracted
 fourier_values = np.empty(0)
@@ -49,7 +49,7 @@ raw_acceleration_values2 = np.empty(0)
 subtracted_acceleration_values = np.empty(0)
 
 # min value of module of acceleration to begin a recalibration
-tolerance_of_recalibration = 15
+tolerance_of_recalibration = 10
 
 # min amount of time until new calibration can be made (seconds)
 time_limit_of_recalibration = 60 * 10
@@ -83,7 +83,7 @@ def get_data_accelerometers():
             time_last_calibration = time.time()
         acceleration_values1.append(accel1)
         acceleration_values2.append(accel2)
-        sleep(frequency - (datetime.datetime.now() - now).seconds)
+        sleep(interval - (datetime.datetime.now() - now).seconds)
         quantity += 1
     subtracted_accelerations = subtract_accels(acceleration_values1, acceleration_values2)
 
@@ -207,14 +207,10 @@ def plot_fourier(unused_param):
     # or N = fourier_segment_length, ie N = 600
 
     # sample spacing
-    t = 1.0 / frequency
+    t = interval
 
-    # returns evenly spaced numbers from 0 to N, with n*t increments. (try instead of xf)
-    x = np.linspace(0.0, n * t, n)
-
-    # no idea what this does, why not use x?
     xf = np.linspace(0.0, 1.0 / (2.0 * t), n // 2)
-    
+
     subplot.clear()
     subplot.plot(xf, 2.0/n * np.abs(fourier_values[0][0:n//2]), 'g')
     subplot.plot(xf, 2.0/n * np.abs(fourier_values[1][0:n//2]), 'r')
