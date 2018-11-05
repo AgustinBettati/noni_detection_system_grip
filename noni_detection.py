@@ -249,7 +249,7 @@ def plot_fourier(unused_param):
     Plot fourier of segment of data.
 
     :param unused_param:
-        parameter that is not used.
+        parameter that is not used, needed in order to comply with matplotlib.animation interface
     :return:
     """
 
@@ -279,8 +279,16 @@ def plot_fourier(unused_param):
     plt.subplots_adjust(bottom=0.30)
 
 
-# Plot raw acceleration values and subtracted accleration values
-def plot_accelerations(x):
+#
+def plot_accelerations(unused_param):
+    """
+    Plot raw acceleration values and subtracted accleration values
+
+    :param unused_param:
+        parameter that is not used, needed in order to comply with matplotlib.animation interface
+    :return:
+    """
+
     if len(raw_acceleration_values) == 0 | len(subtracted_acceleration_values) == 0:
         return
 
@@ -309,6 +317,12 @@ def plot_accelerations(x):
 
 
 def accelerations_to_array(accelerations):
+    """
+    Converts np.array() of Accel to np.array() of float values
+    :param accelerations:
+    :return: np.array()
+        the np.array() of float values
+    """
     x = np.empty(0)
     y = np.empty(0)
     z = np.empty(0)
@@ -319,8 +333,12 @@ def accelerations_to_array(accelerations):
     return [x, y, z]
 
 
-# Get the matrices and start the data collection loop
 def initialization():
+    """
+    Get the matrices and start the data collection loop
+
+    :return:
+    """
     global time_last_calibration
 
     print("initializing")
@@ -330,17 +348,24 @@ def initialization():
     get_data_accelerometers()
 
 
-# Start the thread and the plotters
 def main():
-    # the function initialization start in a new thread
+    """
+    Start the thread and the plotters
+
+    :return:
+    """
     thread.start_new_thread(initialization, ())
+    """The function initialization starts in a new thread"""
 
-    # refresh time for the animation plotter. Extra 10 ms to ensure the update of the data.
     interval = 5000
+    """Refresh time for the animation plotter. Extra 10 ms to ensure the update of the data."""
 
-    # start the plot animation
     ani = animation.FuncAnimation(fig, plot_fourier, fargs=([]), interval=interval)
+    """Start the 1st plot animation"""
+
     ani2 = animation.FuncAnimation(fig2, plot_accelerations, fargs=([]), interval=interval)
+    """Start the 2nd plot animation"""
+
     plt.show()
 
 

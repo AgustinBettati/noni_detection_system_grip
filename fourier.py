@@ -26,7 +26,7 @@ def apply_fourier_x(accels):
     """
     Applies fourier to x values of Accel
 
-    :param accels:
+    :param accels: np.array()
     :return:
     """
     x_values = np.empty((0, len(accels)))
@@ -36,6 +36,13 @@ def apply_fourier_x(accels):
 
 
 def apply_fourier_y(accels):
+    """
+    Applies fourier to y values of Accel
+
+    :param accels: np.array()
+    :return:
+    """
+
     y_values = np.empty((0, len(accels)))
     for accel in accels:
         y_values = np.append(y_values, [accel.y])
@@ -43,6 +50,13 @@ def apply_fourier_y(accels):
 
 
 def apply_fourier_z(accels):
+    """
+    Applies fourier to z values of Accel
+
+    :param accels: np.array()
+    :return:
+    """
+
     z_values = np.empty((0, len(accels)))
     for accel in accels:
         z_values = np.append(z_values, [accel.z])
