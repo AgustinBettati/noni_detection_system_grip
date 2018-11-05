@@ -11,36 +11,44 @@ from transformations import apply_first_transformation, generate_two_matrices, \
     apply_all_transformations, z_transform, Accel
 from fourier import apply_fourier
 
-# Create a new instance of the MPU6050 class
 sensor = MPU6050(0x68)
+"""Creates a new instance of the MPU6050 class for the first sensor"""
 sensor2 = MPU6050(0x69)
+"""Creates a new instance of the MPU6050 class for the second sensor"""
 
-# Variables for plotting
 fig = plt.figure()
+"""Figure to plot fourier"""
 subplot = fig.add_subplot(1, 1, 1)
+"""Subplot where fourier will be plotted"""
+
 fig2 = plt.figure()
+"""Figure to plot accelerations"""
 gs = gridspec.GridSpec(2, 2)
 subplot2 = fig2.add_subplot(gs[0, 0])
+"""Subplot where the accelerations of the first sensor will be plotted"""
 subplot3 = fig2.add_subplot(gs[0, 1])
+"""Subplot where the accelerations of the second sensor will be plotted"""
 subplot4 = fig2.add_subplot(gs[1, :])
+"""Subplot where the rotated accelerations of the two sensors will be plotted"""
 
-# Matrices
 x_mat = np.empty(0)
 y_mat = np.empty(0)
 z_mat = np.empty(0)
 x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
+"""Matrices use for rotations"""
 
-# Quantity of values to calculate the third matrix
 third_matrix_values = 500
-# Interval between two accelerations when calculating the third matrix
+"""Quantity of values to get before calculating the third matrix"""
+
 third_matrix_interval = 0.05
+"""Interval between two accelerations when calculating the third matrix"""
 
-# Interval between two accelerations in seconds
 interval = 0.1
+"""Interval between two accelerations in seconds"""
 
-# Quantity of accelerations to get before doing fourier
 data_quantity = 60
+"""Quantity of accelerations to get before doing fourier"""
 
 # Values for plotting: fourier, raw accelerations and accelerations subtracted
 fourier_values = np.empty(0)
@@ -48,20 +56,23 @@ raw_acceleration_values = np.empty(0)
 raw_acceleration_values2 = np.empty(0)
 subtracted_acceleration_values = np.empty(0)
 
-# min value of module of acceleration to begin a recalibration
 tolerance_of_recalibration = 10
-
-# min amount of time until new calibration can be made (seconds)
-time_limit_of_recalibration = 60 * 10
+"""minimum acceleration module to begin a recalibration"""
 
 time_last_calibration = 0.0
+time_limit_of_recalibration = 60 * 10
+"""minimum amount of time until new calibration can be made (in seconds)"""
 
-# min magnitude value of acceleration to calculate 3rd matrix
+
 min_magnitude = 15
+"""minimum module required to trigger the third matrix calculation"""
 
 
-# Main method. Generates the matrices and then enters a loop and start getting the accelerometer values
 def get_data_accelerometers():
+    """
+    Generates the matrices, enters a loop and start getting the accelerometer values
+    :return: void
+    """
     global fourier_values, time_last_calibration, raw_acceleration_values, raw_acceleration_values2, subtracted_acceleration_values
     print ("start getting accelerations")
     quantity = 0
@@ -98,8 +109,13 @@ def get_data_accelerometers():
     get_data_accelerometers()
 
 
-# print accelerations, just for testing purposes
 def print_accelerations(accels):
+    """
+    Prints accelerations, just for testing purposes
+    :param accels: Accel[]
+        The list of accelerations to be printed
+    :return:void
+    """
     for i in range(len(accels)):
         print ("x: ")
         print(accels[i].x)
@@ -110,8 +126,16 @@ def print_accelerations(accels):
         print ("\n")
 
 
-# Subtract one array of acceleration with another one
 def subtract_accels(accel1, accel2):
+    """
+    Subtracts one array of accelerations with another one
+    :param accel1: Accel[]
+        The array of Accel to be subtracted
+    :param accel2:
+        The array of Accel to be subtracted
+    :return:Accel[]
+        An array of accelerations
+    """
     accel = []
     for i in range(len(accel1)):
         x = accel1[i].x - accel2[i].x
@@ -122,8 +146,11 @@ def subtract_accels(accel1, accel2):
     return accel
 
 
-# defines the matrix z for the sensor 1 and sensor 2
 def get_third_matrix():
+    """
+    Defines the matrix z for the sensor 1 and sensor 2
+    :return: void
+    """
     global z_mat, min_magnitude
 
     print("please move the accelerometers")
@@ -149,8 +176,11 @@ def get_third_matrix():
     print("Obtained third matrix")
 
 
-# defines matrix x and matrix y for the sensor 1 and 2
 def get_first_matrices():
+    """
+    Defines matrix and matrix y for the sensor 1 and 2
+    :return: void
+    """
     global x_mat, y_mat, x_mat2, y_mat2
 
     accel = get_accel(sensor)
@@ -166,9 +196,12 @@ def get_first_matrices():
     print("Obtained first two matrices")
 
 
-# Rotate the acceleration values from the sensor 1 and appends them to the acceleration_values.
 def get_data_accelerometer1():
-
+    """
+    Rotates the acceleration values from the sensor 1 and appends them to the acceleration_values.
+    :return: Accel
+        The acceleration rotated
+    """
     global x_mat, y_mat, z_mat
 
     accel = get_accel(sensor)
@@ -178,8 +211,12 @@ def get_data_accelerometer1():
     return Accel(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
-# Rotate the acceleration values from the sensor 2 and appends them to the acceleration_values.
 def get_data_accelerometer2():
+    """
+    Rotates the acceleration values from the sensor 2 and appends them to the acceleration_values.
+    :return: Accel
+        The acceleration rotated
+    """
     global x_mat2, y_mat2
 
     accel = get_accel(sensor2)
@@ -189,8 +226,14 @@ def get_data_accelerometer2():
     return Accel(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
-# Get the acceleration values from a specific sensor
 def get_accel(custom_sensor):
+    """
+    Gets the acceleration values from a specific sensor
+    :param custom_sensor: MPU6050
+        The sensor from where the accelerations will be taken.
+    :return: Accel
+        The acceleration sensed
+    """
     accel_data = custom_sensor.get_accel_data()
     return Accel(accel_data['x'], accel_data['y'], accel_data['z'])
 
