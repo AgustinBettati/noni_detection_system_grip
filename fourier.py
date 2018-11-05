@@ -3,6 +3,14 @@ import numpy as np
 
 
 def apply_fourier(accels):
+    """
+    Applies fourier to Acceleration
+
+    :param accels: np.array()
+        acceleration values to apply fourier to
+    :return: np.array()
+        numpy array of the transformed acceleration values
+    """
     x_values = np.empty((0, len(accels)))
     y_values = np.empty((0, len(accels)))
     z_values = np.empty((0, len(accels)))
@@ -15,6 +23,12 @@ def apply_fourier(accels):
 
 
 def apply_fourier_x(accels):
+    """
+    Applies fourier to x values of Accel
+
+    :param accels:
+    :return:
+    """
     x_values = np.empty((0, len(accels)))
     for accel in accels:
         x_values = np.append(x_values, [accel.x])

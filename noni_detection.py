@@ -50,11 +50,17 @@ interval = 0.1
 data_quantity = 60
 """Quantity of accelerations to get before doing fourier"""
 
-# Values for plotting: fourier, raw accelerations and accelerations subtracted
 fourier_values = np.empty(0)
+"""Values for plotting fourier"""
+
 raw_acceleration_values = np.empty(0)
+"""Values for plotting raw accelerations"""
+
 raw_acceleration_values2 = np.empty(0)
+"""Values for plotting raw acceleration"""
+
 subtracted_acceleration_values = np.empty(0)
+"""Values for plotting subtracted accelerations"""
 
 tolerance_of_recalibration = 10
 """minimum acceleration module to begin a recalibration"""
@@ -238,21 +244,29 @@ def get_accel(custom_sensor):
     return Accel(accel_data['x'], accel_data['y'], accel_data['z'])
 
 
-# Plot fourier of segment of data
 def plot_fourier(unused_param):
+    """
+    Plot fourier of segment of data.
+
+    :param unused_param:
+        parameter that is not used.
+    :return:
+    """
+
     global fourier_values
+    """The values after applying fourier transform"""
 
     if len(fourier_values) == 0:
         return
 
-    # Number of sample points
     n = fourier_values[0].size
-    # or N = fourier_segment_length, ie N = 600
+    """Number of sample points"""
 
-    # sample spacing
     t = interval
+    """Sample spacing"""
 
     xf = np.linspace(0.0, 1.0 / (2.0 * t), n // 2)
+    """Equally distributed frequency values"""
 
     subplot.clear()
     subplot.plot(xf, 2.0/n * np.abs(fourier_values[0][0:n//2]), 'g')
