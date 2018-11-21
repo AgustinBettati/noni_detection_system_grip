@@ -1,3 +1,6 @@
+import numpy as np
+from transformations import Measurments
+
 # Variables Used by Kalman Filters
 DT = 0.1  # [s/loop] loop period. 100ms
 Q_angle = 0.01
@@ -29,7 +32,7 @@ def kalmanFilterX(accAngle, gyroRate, DT):
                 The acceleration angle
             :param gyroRate: float
                 The angular velocity measured by gyroscope
-            :return: i dont know
+            :return: float[] ??
                 An array of kalman results
     """
 
@@ -76,7 +79,7 @@ def kalmanFilterY(accAngle, gyroRate, DT):
                 The acceleration angle
             :param gyroRate: float
                 The angular velocity measured by gyroscope
-            :return: i dont know
+            :return: float[] ??
                 An array of kalman results
     """
 
@@ -123,7 +126,7 @@ def kalmanFilterZ(accAngle, gyroRate, DT):
             The acceleration angle
         :param gyroRate: float
             The angular velocity measured by gyroscope
-        :return: i dont know
+        :return: float[] ??
             An array of kalman results
     """
 
@@ -185,3 +188,15 @@ def apply_kalman_filter(accelerations, gyros):
         from transformations import Measurments
         result.append(Measurments(x, y, z))
     return result
+
+
+def getXAccAngle(accel):
+    return np.arctan2(accel.x, np.sqrt((np.power(accel.y, 2) + np.power(accel.z, 2))))
+
+
+def getYAccAngle(accel):
+    return np.arctan2(accel.y, np.sqrt((np.power(accel.x, 2) + np.power(accel.z, 2))))
+
+
+def getZAccAngle(accel):
+    return np.arctan2(accel.z, np.sqrt((np.power(accel.x, 2) + np.power(accel.y, 2))))

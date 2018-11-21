@@ -64,12 +64,18 @@ def testMagnitude():
     print(magnitude)
 
 
+def getXAccAngle(accels):
+    return np.arctan2(accels.x, np.sqrt((np.power(accels.y, 2) + np.power(accels.z, 2))))
+
+
 # Start the thread and the plotters
 def main():
     #plot_fourier()
     #plt.show()
     # test_fourier_functions()
-    testMagnitude()
+    # testMagnitude()
+    print(getXAccAngle(Measurments(2, 4, 3)))
+    print(getXAccAngle(Measurments(1, 1, 1)))
 
 
 main()
