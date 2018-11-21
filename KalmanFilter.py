@@ -1,4 +1,38 @@
+# Variables Used by Kalman Filters
+DT = 0.1  # [s/loop] loop period. 100ms
+Q_angle = 0.01
+Q_gyro = 0.0003
+R_angle = 0.01
+x_bias = 0
+y_bias = 0
+XP_00 = 0
+XP_01 = 0
+XP_10 = 0
+XP_11 = 0
+YP_00 = 0
+YP_01 = 0
+YP_10 = 0
+YP_11 = 0
+ZP_00 = 0
+ZP_01 = 0
+ZP_10 = 0
+ZP_11 = 0
+KFangleX = 0.0
+KFangleY = 0.0
+KFangleZ = 0.0
+
+
 def kalmanFilterX(accAngle, gyroRate, DT):
+    """
+            Applies kalman filter using current acceleration angle and gyro rotation rate in X axis.
+            :param accAngle: float
+                The acceleration angle
+            :param gyroRate: float
+                The angular velocity measured by gyroscope
+            :return: i dont know
+                An array of kalman results
+    """
+
     x = 0.0
     S = 0.0
 
@@ -34,44 +68,65 @@ def kalmanFilterX(accAngle, gyroRate, DT):
 
     return KFangleX
 
-def kalmanFilterY (accAngle, gyroRate, DT):
-        y=0.0
-        S=0.0
 
-        global KFangleY
-        global Q_angle
-        global Q_gyro
-        global R_angle
-        global y_bias
-        global YP_00
-        global YP_01
-        global YP_10
-        global YP_11
+def kalmanFilterY(accAngle, gyroRate, DT):
+    """
+            Applies kalman filter using current acceleration angle and gyro rotation rate in Y axis.
+            :param accAngle: float
+                The acceleration angle
+            :param gyroRate: float
+                The angular velocity measured by gyroscope
+            :return: i dont know
+                An array of kalman results
+    """
 
-        KFangleY = KFangleY + DT * (gyroRate - y_bias)
+    y = 0.0
+    S = 0.0
 
-        YP_00 = YP_00 + ( - DT * (YP_10 + YP_01) + Q_angle * DT )
-        YP_01 = YP_01 + ( - DT * YP_11 )
-        YP_10 = YP_10 + ( - DT * YP_11 )
-        YP_11 = YP_11 + ( + Q_gyro * DT )
+    global KFangleY
+    global Q_angle
+    global Q_gyro
+    global R_angle
+    global y_bias
+    global YP_00
+    global YP_01
+    global YP_10
+    global YP_11
 
-        y = accAngle - KFangleY
-        S = YP_00 + R_angle
-        K_0 = YP_00 / S
-        K_1 = YP_10 / S
+    KFangleY = KFangleY + DT * (gyroRate - y_bias)
 
-        KFangleY = KFangleY + ( K_0 * y )
-        y_bias = y_bias + ( K_1 * y )
+    YP_00 = YP_00 + (- DT * (YP_10 + YP_01) + Q_angle * DT)
+    YP_01 = YP_01 + (- DT * YP_11)
+    YP_10 = YP_10 + (- DT * YP_11)
+    YP_11 = YP_11 + (+ Q_gyro * DT)
 
-        YP_00 = YP_00 - ( K_0 * YP_00 )
-        YP_01 = YP_01 - ( K_0 * YP_01 )
-        YP_10 = YP_10 - ( K_1 * YP_00 )
-        YP_11 = YP_11 - ( K_1 * YP_01 )
+    y = accAngle - KFangleY
+    S = YP_00 + R_angle
+    K_0 = YP_00 / S
+    K_1 = YP_10 / S
 
-        return KFangleY
+    KFangleY = KFangleY + (K_0 * y)
+    y_bias = y_bias + (K_1 * y)
+
+    YP_00 = YP_00 - (K_0 * YP_00)
+    YP_01 = YP_01 - (K_0 * YP_01)
+    YP_10 = YP_10 - (K_1 * YP_00)
+    YP_11 = YP_11 - (K_1 * YP_01)
+
+    return KFangleY
 
 
 def kalmanFilterZ(accAngle, gyroRate, DT):
+    """
+        Applies kalman filter using current acceleration angle and gyro rotation rate in Z axis.
+        :param accAngle: float
+            The acceleration angle
+        :param gyroRate: float
+            The angular velocity measured by gyroscope
+        :return: i dont know
+            An array of kalman results
+    """
+
     z = 0.0
     S = 0.0
 
@@ -107,6 +162,7 @@ def kalmanFilterZ(accAngle, gyroRate, DT):
 
     return KFangleZ
 
+
 def apply_kalman_filter(accelerations, gyros):
     """
     Applies kalman filter to array of accelerations and gyros.
@@ -117,11 +173,14 @@ def apply_kalman_filter(accelerations, gyros):
     :return:Measurements[]
         An array of kalman results
     """
+
+    global DT
+
     result = []
     for i in range(len(accelerations)):
-        x = kalmanFilterX(accelerations[i].x, gyros[i].x, 0.1)
-        y = kalmanFilterY(accelerations[i].y, gyros[i].y, 0.1)
-        z = kalmanFilterZ(accelerations[i].z, gyros[i].z, 0.1)
+        x = kalmanFilterX(accelerations[i].x, gyros[i].x, DT)
+        y = kalmanFilterY(accelerations[i].y, gyros[i].y, DT)
+        z = kalmanFilterZ(accelerations[i].z, gyros[i].z, DT)
 
         from transformations import Measurments
         result.append(Measurments(x, y, z))
