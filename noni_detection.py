@@ -8,7 +8,7 @@ from MPU6050 import MPU6050
 from time import sleep
 import time
 from transformations import apply_first_transformation, generate_two_matrices, \
-    apply_all_transformations, z_transform, Accel
+    apply_all_transformations, z_transform, Measurments
 from fourier import apply_fourier
 
 sensor = MPU6050(0x68)
@@ -84,6 +84,8 @@ def get_data_accelerometers():
     quantity = 0
     acceleration_values1 = []
     acceleration_values2 = []
+    gyro_values1 = []
+    gyro_values2 = []
 
     try_calibration = False
     if time.time() - time_last_calibration > time_limit_of_recalibration:
@@ -93,6 +95,8 @@ def get_data_accelerometers():
         now = datetime.datetime.now()
         accel1 = get_data_accelerometer1()
         accel2 = get_data_accelerometer2()
+        gyro1 = get_data_gyro1()
+        gyro2 = get_data_gyro2()
         if try_calibration and accel1.module() > tolerance_of_recalibration:
             print("Starting recalibration of third matrix")
             get_third_matrix()
@@ -100,14 +104,21 @@ def get_data_accelerometers():
             time_last_calibration = time.time()
         acceleration_values1.append(accel1)
         acceleration_values2.append(accel2)
+        gyro_values1.append(gyro1)
+        gyro_values2.append(gyro2)
         sleep(interval - (datetime.datetime.now() - now).seconds)
         quantity += 1
-    subtracted_accelerations = subtract_accels(acceleration_values1, acceleration_values2)
+    subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
+    subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)
+    # estas aceleraciones y gyro se pasan a kalman
 
     # For plotting
-    raw_acceleration_values = accelerations_to_array(acceleration_values1)
-    raw_acceleration_values2 = accelerations_to_array(acceleration_values2)
-    subtracted_acceleration_values = accelerations_to_array(subtracted_accelerations)
+    raw_acceleration_values = measurements_to_array(acceleration_values1)
+    raw_acceleration_values2 = measurements_to_array(acceleration_values2)
+
+    subtracted_acceleration_values = measurements_to_array(subtracted_accelerations)
+    subtracted_gyro_values = measurements_to_array(subtracted_gyros)
+
 
     print ("accelerations subtracted, making fourier")
     fourier_values = apply_fourier(subtracted_accelerations)
@@ -132,23 +143,23 @@ def print_accelerations(accels):
         print ("\n")
 
 
-def subtract_accels(accel1, accel2):
+def subtract_measurements(measurements1, measurements2):
     """
     Subtracts one array of accelerations with another one
-    :param accel1: Accel[]
-        The array of Accel to be subtracted
-    :param accel2:
-        The array of Accel to be subtracted
-    :return:Accel[]
-        An array of accelerations
+    :param measurements1: Measurements[]
+        The array of Measurements to be subtracted
+    :param measurements2:
+        The array of Measurements to be subtracted
+    :return:Measurements[]
+        An array of Measurements
     """
     accel = []
-    for i in range(len(accel1)):
-        x = accel1[i].x - accel2[i].x
-        y = accel1[i].y - accel2[i].y
-        z = accel1[i].z - accel2[i].z
+    for i in range(len(measurements1)):
+        x = measurements1[i].x - measurements2[i].x
+        y = measurements1[i].y - measurements2[i].y
+        z = measurements1[i].z - measurements2[i].z
 
-        accel.append(Accel(x, y, z))
+        accel.append(Measurments(x, y, z))
     return accel
 
 
@@ -214,7 +225,7 @@ def get_data_accelerometer1():
 
     values_rotated = apply_all_transformations(accel, [x_mat, y_mat, z_mat])
 
-    return Accel(values_rotated.x, values_rotated.y, values_rotated.z)
+    return Measurments(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 def get_data_accelerometer2():
@@ -229,7 +240,37 @@ def get_data_accelerometer2():
 
     values_rotated = apply_first_transformation(accel, [x_mat2, y_mat2])
 
-    return Accel(values_rotated.x, values_rotated.y, values_rotated.z)
+    return Measurments(values_rotated.x, values_rotated.y, values_rotated.z)
+
+
+def get_data_gyro1():
+    """
+    Rotates the gyro values from the sensor 1.
+    :return: Measurements
+        The gyro values rotated
+    """
+    global x_mat, y_mat, z_mat
+
+    gyro = get_gyro(sensor)
+
+    values_rotated = apply_all_transformations(gyro, [x_mat, y_mat, z_mat])
+
+    return Measurments(values_rotated.x, values_rotated.y, values_rotated.z)
+
+
+def get_data_gyro2():
+    """
+    Rotates the gyro values from the sensor 2.
+    :return: Measurements
+        The gyro values rotated
+    """
+    global x_mat2, y_mat2
+
+    gyro = get_gyro(sensor2)
+
+    values_rotated = apply_first_transformation(gyro, [x_mat2, y_mat2])
+
+    return Measurments(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 def get_accel(custom_sensor):
@@ -241,7 +282,18 @@ def get_accel(custom_sensor):
         The acceleration sensed
     """
     accel_data = custom_sensor.get_accel_data()
-    return Accel(accel_data['x'], accel_data['y'], accel_data['z'])
+    return Measurments(accel_data['x'], accel_data['y'], accel_data['z'])
+
+def get_gyro(custom_sensor):
+    """
+    Gets the acceleration values from a specific sensor
+    :param custom_sensor: MPU6050
+        The sensor from where the accelerations will be taken.
+    :return: Accel
+        The acceleration sensed
+    """
+    gyro_data = custom_sensor.get_gyro_data()
+    return Measurments(gyro_data['x'], gyro_data['y'], gyro_data['z'])
 
 
 def plot_fourier(unused_param):
@@ -316,20 +368,20 @@ def plot_accelerations(unused_param):
     subplot4.set_ylim(-15, 15)
 
 
-def accelerations_to_array(accelerations):
+def measurements_to_array(measurements):
     """
     Converts np.array() of Accel to np.array() of float values
-    :param accelerations:
+    :param measurements:
     :return: np.array()
         the np.array() of float values
     """
     x = np.empty(0)
     y = np.empty(0)
     z = np.empty(0)
-    for i in range(len(accelerations)):
-        x = np.append(x, accelerations[i].x)
-        y = np.append(y, accelerations[i].y)
-        z = np.append(z, accelerations[i].z)
+    for i in range(len(measurements)):
+        x = np.append(x, measurements[i].x)
+        y = np.append(y, measurements[i].y)
+        z = np.append(z, measurements[i].z)
     return [x, y, z]
 
 

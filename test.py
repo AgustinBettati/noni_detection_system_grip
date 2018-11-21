@@ -2,7 +2,7 @@ from scipy.fftpack import fft
 import numpy as np
 import matplotlib.pyplot as plt
 from fourier import apply_fourier_x
-from transformations import Accel
+from transformations import Measurments
 
 # Interval between two accelerations in seconds
 frequency = 0.25
@@ -40,7 +40,7 @@ def test_fourier_functions():
     y = np.empty((0, 1000))
     i = 1
     while i <= 1000:
-        y = np.append(y, np.array([Accel(np.random.random_sample(), 0, 0)]))
+        y = np.append(y, np.array([Measurments(np.random.random_sample(), 0, 0)]))
         i = i + 1
 
     yf = apply_fourier_x(y)
@@ -48,8 +48,8 @@ def test_fourier_functions():
 
 
 def not_functional():
-    array = [Accel(np.random.random_sample(), 0, 0), Accel(np.random.random_sample(), 0, 0),
-             Accel(np.random.random_sample(), 0, 0)]
+    array = [Measurments(np.random.random_sample(), 0, 0), Measurments(np.random.random_sample(), 0, 0),
+             Measurments(np.random.random_sample(), 0, 0)]
     x_values = np.empty((0, 3))
     for item in array:
         print(item.x)
@@ -59,7 +59,7 @@ def not_functional():
 
 
 def testMagnitude():
-    acel_raw = Accel(1, 2, 3)
+    acel_raw = Measurments(1, 2, 3)
     magnitude = np.sqrt(np.power(acel_raw.x, 2) + np.power(acel_raw.y, 2) + np.power(acel_raw.z, 2))
     print(magnitude)
 

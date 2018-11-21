@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 
-class Accel:
+class Measurments:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -42,7 +42,7 @@ def apply_first_transformation(accels, matrices):
     """
     accel_first_tr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
     accel_snd_tr = np.array([accel_first_tr[0], accel_first_tr[1], accel_first_tr[2]]).dot(matrices[0])
-    return Accel(accel_snd_tr[0], accel_snd_tr[1], accel_snd_tr[2])
+    return Measurments(accel_snd_tr[0], accel_snd_tr[1], accel_snd_tr[2])
 
 
 def apply_all_transformations(accels, matrices):
@@ -58,7 +58,7 @@ def apply_all_transformations(accels, matrices):
     accel_first_tr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
     accel_snd_tr = np.array([accel_first_tr[0], accel_first_tr[1], accel_first_tr[2]]).dot(matrices[0])
     accel_third_tr = np.array([accel_snd_tr[0], accel_snd_tr[1], accel_snd_tr[2]]).dot(matrices[2])
-    return Accel(accel_third_tr[0], accel_third_tr[1], accel_third_tr[2])
+    return Measurments(accel_third_tr[0], accel_third_tr[1], accel_third_tr[2])
 
 
 def y_transform(accel_x, accel_z):
