@@ -24,8 +24,8 @@ def kalmanFilterX(accAngle, gyroRate, DT):
     K_0 = XP_00 / S
     K_1 = XP_10 / S
 
-    KFangleX = KFangleX + (K_0 * y)
-    x_bias = x_bias + (K_1 * y)
+    KFangleX = KFangleX + (K_0 * x)
+    x_bias = x_bias + (K_1 * x)
 
     XP_00 = XP_00 - (K_0 * XP_00)
     XP_01 = XP_01 - (K_0 * XP_01)
@@ -107,3 +107,22 @@ def kalmanFilterZ(accAngle, gyroRate, DT):
 
     return KFangleZ
 
+def apply_kalman_filter(accelerations, gyros):
+    """
+    Applies kalman filter to array of accelerations and gyros.
+    :param accelerations: Measurements[]
+        The array of Measurements to be subtracted
+    :param gyros:
+        The array of Measurements to be subtracted
+    :return:Measurements[]
+        An array of kalman results
+    """
+    result = []
+    for i in range(len(accelerations)):
+        x = kalmanFilterX(accelerations[i].x, gyros[i].x, 0.1)
+        y = kalmanFilterY(accelerations[i].y, gyros[i].y, 0.1)
+        z = kalmanFilterZ(accelerations[i].z, gyros[i].z, 0.1)
+
+        from transformations import Measurments
+        result.append(Measurments(x, y, z))
+    return result

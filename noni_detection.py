@@ -4,6 +4,8 @@ import matplotlib.animation as animation
 import matplotlib.gridspec as gridspec
 import thread
 import datetime as datetime
+
+from KalmanFilter import apply_kalman_filter
 from MPU6050 import MPU6050
 from time import sleep
 import time
@@ -110,7 +112,7 @@ def get_data_accelerometers():
         quantity += 1
     subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
     subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)
-    # estas aceleraciones y gyro se pasan a kalman
+    kalman_results = apply_kalman_filter(subtracted_accelerations, subtracted_gyros)
 
     # For plotting
     raw_acceleration_values = measurements_to_array(acceleration_values1)
@@ -118,6 +120,7 @@ def get_data_accelerometers():
 
     subtracted_acceleration_values = measurements_to_array(subtracted_accelerations)
     subtracted_gyro_values = measurements_to_array(subtracted_gyros)
+    kalman_results_values = measurements_to_array(kalman_results)
 
 
     print ("accelerations subtracted, making fourier")
