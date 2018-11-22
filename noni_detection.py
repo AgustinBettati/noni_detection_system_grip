@@ -26,7 +26,7 @@ x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
 """Matrices use for rotations"""
 
-third_matrix_values = 300
+third_matrix_values = 500
 """Quantity of values to get before calculating the third matrix"""
 
 third_matrix_interval = 0.05
@@ -85,15 +85,15 @@ def get_data_accelerometers():
         if try_calibration and accel1.module() > tolerance_of_recalibration:
             print("Starting recalibration of third matrix")
             get_third_matrix()
-            get_data_accelerometers()
             time_last_calibration = time.time()
+            get_data_accelerometers()
         sleep(interval - (datetime.datetime.now() - now).seconds)
         quantity += 1
 
         subtracted_acceleration = accel1.subtract(accel2)
         subtracted_accelerations.append(subtracted_acceleration)
         subtracted_gyro = gyro1.subtract(gyro2)
-        subtracted_gyros.apppend(subtracted_gyro)
+        subtracted_gyros.append(subtracted_gyro)
         kalman_result = apply_single_kalman_filter(subtracted_acceleration, subtracted_gyro)
 
         send(subtracted_acceleration, subtracted_gyro, kalman_result)

@@ -8,6 +8,7 @@ Q_gyro = 0.0003
 R_angle = 0.01
 x_bias = 0
 y_bias = 0
+z_bias = 0
 XP_00 = 0
 XP_01 = 0
 XP_10 = 0
