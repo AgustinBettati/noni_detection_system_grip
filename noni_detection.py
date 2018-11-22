@@ -5,7 +5,7 @@ import matplotlib.gridspec as gridspec
 import thread
 import datetime as datetime
 
-from KalmanFilter import apply_kalman_filter
+from KalmanFilter import apply_kalman_filter, apply_single_kalman_filter
 from MPU6050 import MPU6050
 from time import sleep
 import time
@@ -94,12 +94,14 @@ def get_data_accelerometers():
         subtracted_accelerations.append(subtracted_acceleration)
         subtracted_gyro = gyro1.subtract(gyro2)
         subtracted_gyros.apppend(subtracted_gyro)
+        kalman_result = apply_single_kalman_filter(subtracted_acceleration, subtracted_gyro)
 
-        send(subtracted_acceleration, subtracted_gyros, subtracted_gyros) # the third argument should be kalman
+        send(subtracted_acceleration, subtracted_gyro, kalman_result)
 
     # subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
     # subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)
-    kalman_results = apply_kalman_filter(subtracted_accelerations, subtracted_gyros)
+    # no descomentar esta linea porque sino kalman se aplica dos veces
+    # kalman_results = apply_kalman_filter(subtracted_accelerations, subtracted_gyros)
 
 
     print ("accelerations subtracted, making fourier")

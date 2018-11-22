@@ -189,6 +189,24 @@ def apply_kalman_filter(accelerations, gyros):
         result.append(Measurement(x, y, z))
     return result
 
+def apply_single_kalman_filter(acceleration, gyro):
+    """
+    Applies kalman filter to a measurement of acceleration and gyro.
+    :param accelerations: Measurements
+        The acceleration Measurement
+    :param gyros:
+        The gyro Measurement
+    :return:Measurement
+        Kalman filter result
+    """
+
+    global DT
+    x = kalmanFilterX(acceleration.x, gyro.x, DT)
+    y = kalmanFilterY(acceleration.y, gyro.y, DT)
+    z = kalmanFilterZ(acceleration.z, gyro.z, DT)
+
+    return Measurement(x, y, z)
+
 
 def getXAccAngle(accel):
     return np.arctan2(accel.x, np.sqrt((np.power(accel.y, 2) + np.power(accel.z, 2))))
