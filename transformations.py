@@ -12,6 +12,9 @@ class Measurments:
     def module(self):
         return self.x ** 2 + self.y ** 2 + self.z ** 2
 
+    def subtract(self, accel):
+        return Accel(self.x - accel.x, self.y - accel.y, self.z - accel.z)
+
 
 def generate_two_matrices(accel):
     """

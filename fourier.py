@@ -11,14 +11,14 @@ def apply_fourier(accels):
     :return: np.array()
         numpy array of the transformed acceleration values
     """
-    x_values = np.empty((0, len(accels)))
-    y_values = np.empty((0, len(accels)))
-    z_values = np.empty((0, len(accels)))
+    x_values = []
+    y_values = []
+    z_values = []
 
     for accel in accels:
-        x_values = np.append(x_values, [accel.x])
-        y_values = np.append(y_values, [accel.y])
-        z_values = np.append(z_values, [accel.z])
+        x_values.append(accel.x)
+        y_values.append(accel.y)
+        z_values.append(accel.z)
     return [fft(x_values), fft(y_values), fft(z_values)]
 
 

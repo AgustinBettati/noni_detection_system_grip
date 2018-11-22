@@ -12,26 +12,12 @@ import time
 from transformations import apply_first_transformation, generate_two_matrices, \
     apply_all_transformations, z_transform, Measurments
 from fourier import apply_fourier
+from websocket_client import send, start_connection
 
 sensor = MPU6050(0x68)
 """Creates a new instance of the MPU6050 class for the first sensor"""
 sensor2 = MPU6050(0x69)
 """Creates a new instance of the MPU6050 class for the second sensor"""
-
-fig = plt.figure()
-"""Figure to plot fourier"""
-subplot = fig.add_subplot(1, 1, 1)
-"""Subplot where fourier will be plotted"""
-
-fig2 = plt.figure()
-"""Figure to plot accelerations"""
-gs = gridspec.GridSpec(2, 2)
-subplot2 = fig2.add_subplot(gs[0, 0])
-"""Subplot where the accelerations of the first sensor will be plotted"""
-subplot3 = fig2.add_subplot(gs[0, 1])
-"""Subplot where the accelerations of the second sensor will be plotted"""
-subplot4 = fig2.add_subplot(gs[1, :])
-"""Subplot where the rotated accelerations of the two sensors will be plotted"""
 
 x_mat = np.empty(0)
 y_mat = np.empty(0)
@@ -40,7 +26,7 @@ x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
 """Matrices use for rotations"""
 
-third_matrix_values = 500
+third_matrix_values = 300
 """Quantity of values to get before calculating the third matrix"""
 
 third_matrix_interval = 0.05
@@ -49,7 +35,7 @@ third_matrix_interval = 0.05
 interval = 0.1
 """Interval between two accelerations in seconds"""
 
-data_quantity = 60
+data_quantity = 150
 """Quantity of accelerations to get before doing fourier"""
 
 fourier_values = np.empty(0)
@@ -71,7 +57,6 @@ time_last_calibration = 0.0
 time_limit_of_recalibration = 60 * 10
 """minimum amount of time until new calibration can be made (in seconds)"""
 
-
 min_magnitude = 15
 """minimum module required to trigger the third matrix calculation"""
 
@@ -88,6 +73,7 @@ def get_data_accelerometers():
     acceleration_values2 = []
     gyro_values1 = []
     gyro_values2 = []
+    subtracted_accelerations = []
 
     try_calibration = False
     if time.time() - time_last_calibration > time_limit_of_recalibration:
@@ -110,17 +96,14 @@ def get_data_accelerometers():
         gyro_values2.append(gyro2)
         sleep(interval - (datetime.datetime.now() - now).seconds)
         quantity += 1
+
+        subtracted_acceleration = accel1.subtract(accel2)
+        subtracted_accelerations.append(subtracted_acceleration)
+        send(accel1, accel2, subtracted_acceleration)
+
     subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
     subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)
     kalman_results = apply_kalman_filter(subtracted_accelerations, subtracted_gyros)
-
-    # For plotting
-    raw_acceleration_values = measurements_to_array(acceleration_values1)
-    raw_acceleration_values2 = measurements_to_array(acceleration_values2)
-
-    subtracted_acceleration_values = measurements_to_array(subtracted_accelerations)
-    subtracted_gyro_values = measurements_to_array(subtracted_gyros)
-    kalman_results_values = measurements_to_array(kalman_results)
 
 
     print ("accelerations subtracted, making fourier")
@@ -144,26 +127,6 @@ def print_accelerations(accels):
         print (", z: ")
         print (accels[i].z)
         print ("\n")
-
-
-def subtract_measurements(measurements1, measurements2):
-    """
-    Subtracts one array of accelerations with another one
-    :param measurements1: Measurements[]
-        The array of Measurements to be subtracted
-    :param measurements2:
-        The array of Measurements to be subtracted
-    :return:Measurements[]
-        An array of Measurements
-    """
-    accel = []
-    for i in range(len(measurements1)):
-        x = measurements1[i].x - measurements2[i].x
-        y = measurements1[i].y - measurements2[i].y
-        z = measurements1[i].z - measurements2[i].z
-
-        accel.append(Measurments(x, y, z))
-    return accel
 
 
 def get_third_matrix():
@@ -299,93 +262,6 @@ def get_gyro(custom_sensor):
     return Measurments(gyro_data['x'], gyro_data['y'], gyro_data['z'])
 
 
-def plot_fourier(unused_param):
-    """
-    Plot fourier of segment of data.
-
-    :param unused_param:
-        parameter that is not used, needed in order to comply with matplotlib.animation interface
-    :return:
-    """
-
-    global fourier_values
-    """The values after applying fourier transform"""
-
-    if len(fourier_values) == 0:
-        return
-
-    n = fourier_values[0].size
-    """Number of sample points"""
-
-    t = interval
-    """Sample spacing"""
-
-    xf = np.linspace(0.0, 1.0 / (2.0 * t), n // 2)
-    """Equally distributed frequency values"""
-
-    subplot.clear()
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[0][0:n//2]), 'g')
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[1][0:n//2]), 'r')
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[2][0:n//2]), 'b')
-    subplot.grid()
-    subplot.set_title('Fourier')
-
-    plt.xticks(rotation=45, ha='right')
-    plt.subplots_adjust(bottom=0.30)
-
-
-#
-def plot_accelerations(unused_param):
-    """
-    Plot raw acceleration values and subtracted accleration values
-
-    :param unused_param:
-        parameter that is not used, needed in order to comply with matplotlib.animation interface
-    :return:
-    """
-
-    if len(raw_acceleration_values) == 0 | len(subtracted_acceleration_values) == 0:
-        return
-
-    x_axis = np.linspace(1, data_quantity, data_quantity)
-
-    subplot2.clear()
-    subplot2.plot(x_axis, raw_acceleration_values[0], 'g')
-    subplot2.plot(x_axis, raw_acceleration_values[1], 'r')
-    subplot2.plot(x_axis, raw_acceleration_values[2], 'b')
-    subplot2.grid()
-    subplot2.set_ylim(-15, 15)
-
-    subplot3.clear()
-    subplot3.plot(x_axis, raw_acceleration_values2[0], 'g')
-    subplot3.plot(x_axis, raw_acceleration_values2[1], 'r')
-    subplot3.plot(x_axis, raw_acceleration_values2[2], 'b')
-    subplot3.grid()
-    subplot3.set_ylim(-15, 15)
-
-    subplot4.clear()
-    subplot4.plot(x_axis, subtracted_acceleration_values[0], 'g')
-    subplot4.plot(x_axis, subtracted_acceleration_values[1], 'r')
-    subplot4.plot(x_axis, subtracted_acceleration_values[2], 'b')
-    subplot4.grid()
-    subplot4.set_ylim(-15, 15)
-
-
-def measurements_to_array(measurements):
-    """
-    Converts np.array() of Accel to np.array() of float values
-    :param measurements:
-    :return: np.array()
-        the np.array() of float values
-    """
-    x = np.empty(0)
-    y = np.empty(0)
-    z = np.empty(0)
-    for i in range(len(measurements)):
-        x = np.append(x, measurements[i].x)
-        y = np.append(y, measurements[i].y)
-        z = np.append(z, measurements[i].z)
-    return [x, y, z]
 
 
 def initialization():
@@ -397,31 +273,11 @@ def initialization():
     global time_last_calibration
 
     print("initializing")
+    start_connection()
     get_first_matrices()
     get_third_matrix()
     time_last_calibration = time.time()
     get_data_accelerometers()
 
 
-def main():
-    """
-    Start the thread and the plotters
-
-    :return:
-    """
-    thread.start_new_thread(initialization, ())
-    """The function initialization starts in a new thread"""
-
-    interval = 5000
-    """Refresh time for the animation plotter. Extra 10 ms to ensure the update of the data."""
-
-    ani = animation.FuncAnimation(fig, plot_fourier, fargs=([]), interval=interval)
-    """Start the 1st plot animation"""
-
-    ani2 = animation.FuncAnimation(fig2, plot_accelerations, fargs=([]), interval=interval)
-    """Start the 2nd plot animation"""
-
-    plt.show()
-
-
-main()
+initialization()
