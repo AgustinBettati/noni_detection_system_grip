@@ -10,7 +10,7 @@ from MPU6050 import MPU6050
 from time import sleep
 import time
 from transformations import apply_first_transformation, generate_two_matrices, \
-    apply_all_transformations, z_transform, Measurments
+    apply_all_transformations, z_transform, Measurement
 from fourier import apply_fourier
 from websocket_client import send, start_connection
 
@@ -41,13 +41,13 @@ data_quantity = 150
 fourier_values = np.empty(0)
 """Values for plotting fourier"""
 
-raw_acceleration_values = np.empty(0)
+acceleration_values = np.empty(0)
 """Values for plotting raw accelerations"""
 
-raw_acceleration_values2 = np.empty(0)
+gyro_values = np.empty(0)
 """Values for plotting raw acceleration"""
 
-subtracted_acceleration_values = np.empty(0)
+kalman_values = np.empty(0)
 """Values for plotting subtracted accelerations"""
 
 tolerance_of_recalibration = 10
@@ -66,14 +66,11 @@ def get_data_accelerometers():
     Generates the matrices, enters a loop and start getting the accelerometer values
     :return: void
     """
-    global fourier_values, time_last_calibration, raw_acceleration_values, raw_acceleration_values2, subtracted_acceleration_values
+    global fourier_values, time_last_calibration, acceleration_values, gyro_values, kalman_values
     print ("start getting accelerations")
     quantity = 0
-    acceleration_values1 = []
-    acceleration_values2 = []
-    gyro_values1 = []
-    gyro_values2 = []
     subtracted_accelerations = []
+    subtracted_gyros = []
 
     try_calibration = False
     if time.time() - time_last_calibration > time_limit_of_recalibration:
@@ -90,19 +87,18 @@ def get_data_accelerometers():
             get_third_matrix()
             get_data_accelerometers()
             time_last_calibration = time.time()
-        acceleration_values1.append(accel1)
-        acceleration_values2.append(accel2)
-        gyro_values1.append(gyro1)
-        gyro_values2.append(gyro2)
         sleep(interval - (datetime.datetime.now() - now).seconds)
         quantity += 1
 
         subtracted_acceleration = accel1.subtract(accel2)
         subtracted_accelerations.append(subtracted_acceleration)
-        send(accel1, accel2, subtracted_acceleration)
+        subtracted_gyro = gyro1.subtract(gyro2)
+        subtracted_gyros.apppend(subtracted_gyro)
 
-    subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
-    subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)
+        send(subtracted_acceleration, subtracted_gyros, subtracted_gyros) # the third argument should be kalman
+
+    # subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
+    # subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)
     kalman_results = apply_kalman_filter(subtracted_accelerations, subtracted_gyros)
 
 
@@ -191,7 +187,7 @@ def get_data_accelerometer1():
 
     values_rotated = apply_all_transformations(accel, [x_mat, y_mat, z_mat])
 
-    return Measurments(values_rotated.x, values_rotated.y, values_rotated.z)
+    return Measurement(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 def get_data_accelerometer2():
@@ -206,7 +202,7 @@ def get_data_accelerometer2():
 
     values_rotated = apply_first_transformation(accel, [x_mat2, y_mat2])
 
-    return Measurments(values_rotated.x, values_rotated.y, values_rotated.z)
+    return Measurement(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 def get_data_gyro1():
@@ -221,7 +217,7 @@ def get_data_gyro1():
 
     values_rotated = apply_all_transformations(gyro, [x_mat, y_mat, z_mat])
 
-    return Measurments(values_rotated.x, values_rotated.y, values_rotated.z)
+    return Measurement(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 def get_data_gyro2():
@@ -236,7 +232,7 @@ def get_data_gyro2():
 
     values_rotated = apply_first_transformation(gyro, [x_mat2, y_mat2])
 
-    return Measurments(values_rotated.x, values_rotated.y, values_rotated.z)
+    return Measurement(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
 def get_accel(custom_sensor):
@@ -248,7 +244,7 @@ def get_accel(custom_sensor):
         The acceleration sensed
     """
     accel_data = custom_sensor.get_accel_data()
-    return Measurments(accel_data['x'], accel_data['y'], accel_data['z'])
+    return Measurement(accel_data['x'], accel_data['y'], accel_data['z'])
 
 def get_gyro(custom_sensor):
     """
@@ -259,7 +255,7 @@ def get_gyro(custom_sensor):
         The acceleration sensed
     """
     gyro_data = custom_sensor.get_gyro_data()
-    return Measurments(gyro_data['x'], gyro_data['y'], gyro_data['z'])
+    return Measurement(gyro_data['x'], gyro_data['y'], gyro_data['z'])
 
 
 

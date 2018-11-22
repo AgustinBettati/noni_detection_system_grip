@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 
-class Measurments:
+class Measurement:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -12,8 +12,8 @@ class Measurments:
     def module(self):
         return self.x ** 2 + self.y ** 2 + self.z ** 2
 
-    def subtract(self, accel):
-        return Accel(self.x - accel.x, self.y - accel.y, self.z - accel.z)
+    def subtract(self, measurement):
+        return Measurement(self.x - measurement.x, self.y - measurement.y, self.z - measurement.z)
 
 
 def generate_two_matrices(accel):
@@ -45,7 +45,7 @@ def apply_first_transformation(accels, matrices):
     """
     accel_first_tr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
     accel_snd_tr = np.array([accel_first_tr[0], accel_first_tr[1], accel_first_tr[2]]).dot(matrices[0])
-    return Measurments(accel_snd_tr[0], accel_snd_tr[1], accel_snd_tr[2])
+    return Measurement(accel_snd_tr[0], accel_snd_tr[1], accel_snd_tr[2])
 
 
 def apply_all_transformations(accels, matrices):
@@ -61,7 +61,7 @@ def apply_all_transformations(accels, matrices):
     accel_first_tr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
     accel_snd_tr = np.array([accel_first_tr[0], accel_first_tr[1], accel_first_tr[2]]).dot(matrices[0])
     accel_third_tr = np.array([accel_snd_tr[0], accel_snd_tr[1], accel_snd_tr[2]]).dot(matrices[2])
-    return Measurments(accel_third_tr[0], accel_third_tr[1], accel_third_tr[2])
+    return Measurement(accel_third_tr[0], accel_third_tr[1], accel_third_tr[2])
 
 
 def y_transform(accel_x, accel_z):

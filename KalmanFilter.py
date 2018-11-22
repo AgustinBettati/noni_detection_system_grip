@@ -1,5 +1,5 @@
 import numpy as np
-from transformations import Measurments
+from transformations import Measurement
 
 # Variables Used by Kalman Filters
 DT = 0.1  # [s/loop] loop period. 100ms
@@ -173,7 +173,7 @@ def apply_kalman_filter(accelerations, gyros):
         The array of Measurements to be subtracted
     :param gyros:
         The array of Measurements to be subtracted
-    :return:Measurements[]
+    :return:Measurement[]
         An array of kalman results
     """
 
@@ -185,8 +185,8 @@ def apply_kalman_filter(accelerations, gyros):
         y = kalmanFilterY(accelerations[i].y, gyros[i].y, DT)
         z = kalmanFilterZ(accelerations[i].z, gyros[i].z, DT)
 
-        from transformations import Measurments
-        result.append(Measurments(x, y, z))
+        from transformations import Measurement
+        result.append(Measurement(x, y, z))
     return result
 
 
