@@ -182,9 +182,9 @@ def apply_kalman_filter(accelerations, gyros):
 
     result = []
     for i in range(len(accelerations)):
-        x = kalmanFilterX(accelerations[i].x, gyros[i].x, DT)
-        y = kalmanFilterY(accelerations[i].y, gyros[i].y, DT)
-        z = kalmanFilterZ(accelerations[i].z, gyros[i].z, DT)
+        x = kalmanFilterX(getXAccAngle(accelerations[i].x), gyros[i].x, DT)
+        y = kalmanFilterY(getYAccAngle(accelerations[i].y), gyros[i].y, DT)
+        z = kalmanFilterZ(getZAccAngle(accelerations[i].z), gyros[i].z, DT)
 
         from transformations import Measurement
         result.append(Measurement(x, y, z))

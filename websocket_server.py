@@ -39,7 +39,7 @@ kalman_values = [[0], [0], [0]]
 """Values for plotting subtracted accelerations"""
 
 
-data_quantity = 100
+data_quantity = 500
 
 
 x_axis = np.linspace(1, data_quantity, data_quantity)
@@ -107,9 +107,9 @@ def plot_gyro(x):
     subplot3.set_ylim(-15, 15)
 
     subplot4.clear()
-    subplot4.plot(x_axis, gyro_values1[0], 'g')
-    subplot4.plot(x_axis, gyro_values1[1], 'r')
-    subplot4.plot(x_axis, gyro_values1[2], 'b')
+    subplot4.plot(x_axis, gyro_values2[0], 'g')
+    subplot4.plot(x_axis, gyro_values2[1], 'r')
+    subplot4.plot(x_axis, gyro_values2[2], 'b')
     subplot4.grid()
     subplot4.set_ylim(-15, 15)
 
