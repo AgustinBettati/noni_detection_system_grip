@@ -13,12 +13,13 @@ subplot = fig.add_subplot(1, 1, 1)
 
 fig2 = plt.figure()
 """Figure to plot accelerations"""
-gs = gridspec.GridSpec(3, 1)
+gs = gridspec.GridSpec(3, 2)
 subplot2 = fig2.add_subplot(gs[0, :])
 """Subplot where the accelerations of the first sensor will be plotted"""
-subplot3 = fig2.add_subplot(gs[1, :])
+subplot3 = fig2.add_subplot(gs[1, 0])
+subplot4 = fig2.add_subplot(gs[1, 1])
 """Subplot where the accelerations of the second sensor will be plotted"""
-subplot4 = fig2.add_subplot(gs[2, :])
+subplot5 = fig2.add_subplot(gs[2, :])
 """Subplot where the rotated accelerations of the two sensors will be plotted"""
 
 interval = 0.1
@@ -30,7 +31,8 @@ fourier_values = np.empty(0)
 acceleration_values = [[0], [0], [0]]
 """Values for plotting raw accelerations"""
 
-gyro_values = [[0], [0], [0]]
+gyro_values1 = [[0], [0], [0]]
+gyro_values2 = [[0], [0], [0]]
 """Values for plotting raw acceleration"""
 
 kalman_values = [[0], [0], [0]]
@@ -46,14 +48,15 @@ x_axis = np.linspace(1, data_quantity, data_quantity)
 class SimpleEcho(WebSocket):
 
     def handleMessage(self):
-        global acceleration_values, gyro_values, kalman_values, fourier_values
+        global acceleration_values, gyro_values1, kalman_values, fourier_values, gyro_values2
 
         # echo message back to client
         # self.sendMessage(self.data)
         result = json.loads(self.data)
         acceleration_values = append_acceleration(acceleration_values, result[0])
-        gyro_values = append_acceleration(gyro_values, result[1])
-        kalman_values = append_acceleration(kalman_values, result[2])
+        gyro_values1 = append_acceleration(gyro_values1, result[1])
+        gyro_values2 = append_acceleration(gyro_values2, result[2])
+        kalman_values = append_acceleration(kalman_values, result[3])
 
 
 
@@ -93,14 +96,23 @@ def plot_fourier(unused_param):
 
 
 def plot_gyro(x):
-    if len(gyro_values[0]) < data_quantity:
+    if len(gyro_values2[0]) < data_quantity:
         return
+
     subplot3.clear()
-    subplot3.plot(x_axis, gyro_values[0], 'g')
-    subplot3.plot(x_axis, gyro_values[1], 'r')
-    subplot3.plot(x_axis, gyro_values[2], 'b')
+    subplot3.plot(x_axis, gyro_values1[0], 'g')
+    subplot3.plot(x_axis, gyro_values1[1], 'r')
+    subplot3.plot(x_axis, gyro_values1[2], 'b')
     subplot3.grid()
     subplot3.set_ylim(-15, 15)
+
+    subplot4.clear()
+    subplot4.plot(x_axis, gyro_values1[0], 'g')
+    subplot4.plot(x_axis, gyro_values1[1], 'r')
+    subplot4.plot(x_axis, gyro_values1[2], 'b')
+    subplot4.grid()
+    subplot4.set_ylim(-15, 15)
+
 
 def plot_accelerations(x):
     if len(acceleration_values[0]) < data_quantity:
@@ -115,12 +127,12 @@ def plot_accelerations(x):
 def plot_kalman(x):
     if len(kalman_values[0]) < data_quantity:
         return
-    subplot4.clear()
-    subplot4.plot(x_axis, kalman_values[0], 'g')
-    subplot4.plot(x_axis, kalman_values[1], 'r')
-    subplot4.plot(x_axis, kalman_values[2], 'b')
-    subplot4.grid()
-    subplot4.set_ylim(-15, 15)
+    subplot5.clear()
+    subplot5.plot(x_axis, kalman_values[0], 'g')
+    subplot5.plot(x_axis, kalman_values[1], 'r')
+    subplot5.plot(x_axis, kalman_values[2], 'b')
+    subplot5.grid()
+    subplot5.set_ylim(-15, 15)
 
 def append_acceleration(accelerations, new_acceleration):
     temp = accelerations[:]

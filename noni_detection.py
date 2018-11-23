@@ -44,7 +44,7 @@ fourier_values = np.empty(0)
 acceleration_values = np.empty(0)
 """Values for plotting raw accelerations"""
 
-gyro_values = np.empty(0)
+gyro_values1 = np.empty(0)
 """Values for plotting raw acceleration"""
 
 kalman_values = np.empty(0)
@@ -66,7 +66,7 @@ def get_data_accelerometers():
     Generates the matrices, enters a loop and start getting the accelerometer values
     :return: void
     """
-    global fourier_values, time_last_calibration, acceleration_values, gyro_values, kalman_values
+    global fourier_values, time_last_calibration, acceleration_values, gyro_values1, kalman_values
     print ("start getting accelerations")
     quantity = 0
     subtracted_accelerations = []
@@ -96,7 +96,7 @@ def get_data_accelerometers():
         subtracted_gyros.append(subtracted_gyro)
         kalman_result = apply_single_kalman_filter(subtracted_acceleration, subtracted_gyro)
 
-        send(subtracted_acceleration, subtracted_gyro, kalman_result)
+        send(subtracted_acceleration, gyro1, gyro2, kalman_result)
 
     # subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
     # subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)

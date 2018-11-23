@@ -13,11 +13,12 @@ def start_connection():
             print "reconnecting"
 
 
-def send(acceleration, gyro, kalman):
+def send(acceleration, gyro1, gyro2,  kalman):
     start_connection()
     ws.send(json.dumps(
         [acceleration_to_array(acceleration),
-         acceleration_to_array(gyro),
+         acceleration_to_array(gyro1),
+         acceleration_to_array(gyro2),
          acceleration_to_array(kalman)]))
 
 def acceleration_to_array(acceleration):
