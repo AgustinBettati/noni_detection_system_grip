@@ -99,40 +99,49 @@ def plot_gyro(x):
     if len(gyro_values2[0]) < data_quantity:
         return
 
-    subplot3.clear()
-    subplot3.plot(x_axis, gyro_values1[0], 'g')
-    subplot3.plot(x_axis, gyro_values1[1], 'r')
-    subplot3.plot(x_axis, gyro_values1[2], 'b')
-    subplot3.grid()
-    subplot3.set_ylim(-15, 15)
+    try:
+        subplot3.clear()
+        subplot3.plot(x_axis, gyro_values1[0], 'g')
+        subplot3.plot(x_axis, gyro_values1[1], 'r')
+        subplot3.plot(x_axis, gyro_values1[2], 'b')
+        subplot3.grid()
+        subplot3.set_ylim(-15, 15)
 
-    subplot4.clear()
-    subplot4.plot(x_axis, gyro_values2[0], 'g')
-    subplot4.plot(x_axis, gyro_values2[1], 'r')
-    subplot4.plot(x_axis, gyro_values2[2], 'b')
-    subplot4.grid()
-    subplot4.set_ylim(-15, 15)
+        subplot4.clear()
+        subplot4.plot(x_axis, gyro_values2[0], 'g')
+        subplot4.plot(x_axis, gyro_values2[1], 'r')
+        subplot4.plot(x_axis, gyro_values2[2], 'b')
+        subplot4.grid()
+        subplot4.set_ylim(-15, 15)
+    except ValueError:
+        print "Value error"
 
 
 def plot_accelerations(x):
     if len(acceleration_values[0]) < data_quantity:
         return
-    subplot2.clear()
-    subplot2.plot(x_axis, acceleration_values[0], 'g')
-    subplot2.plot(x_axis, acceleration_values[1], 'r')
-    subplot2.plot(x_axis, acceleration_values[2], 'b')
-    subplot2.grid()
-    subplot2.set_ylim(-15, 15)
+    try:
+        subplot2.clear()
+        subplot2.plot(x_axis, acceleration_values[0], 'g')
+        subplot2.plot(x_axis, acceleration_values[1], 'r')
+        subplot2.plot(x_axis, acceleration_values[2], 'b')
+        subplot2.grid()
+        subplot2.set_ylim(-15, 15)
+    except ValueError:
+        print "Value error"
 
 def plot_kalman(x):
     if len(kalman_values[0]) < data_quantity:
         return
-    subplot5.clear()
-    subplot5.plot(x_axis, kalman_values[0], 'g')
-    subplot5.plot(x_axis, kalman_values[1], 'r')
-    subplot5.plot(x_axis, kalman_values[2], 'b')
-    subplot5.grid()
-    subplot5.set_ylim(-15, 15)
+    try:
+        subplot5.clear()
+        subplot5.plot(x_axis, kalman_values[0], 'g')
+        subplot5.plot(x_axis, kalman_values[1], 'r')
+        subplot5.plot(x_axis, kalman_values[2], 'b')
+        subplot5.grid()
+        subplot5.set_ylim(-15, 15)
+    except ValueError:
+        print "Value error"
 
 def append_acceleration(accelerations, new_acceleration):
     temp = accelerations[:]
