@@ -22,9 +22,6 @@ subplot4 = fig2.add_subplot(gs[1, 1])
 subplot5 = fig2.add_subplot(gs[2, :])
 """Subplot where the rotated accelerations of the two sensors will be plotted"""
 
-interval = 0.1
-"""Interval between two accelerations in seconds"""
-
 fourier_values = np.empty(0)
 """Values for plotting fourier"""
 fourier_x_axis = []
