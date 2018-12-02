@@ -39,7 +39,7 @@ def apply_fourier_y(accels):
     """
     Applies fourier to y values of Measurement
 
-    :param accels: np.array()
+    :param accels:Measurement
     :return:
     """
 

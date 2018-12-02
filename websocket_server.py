@@ -89,7 +89,7 @@ def plot_fourier(unused_param):
 
     :param unused_param:
         parameter that is not used, needed in order to comply with matplotlib.animation interface
-    :return:
+    :return: void
     """
 
     global fourier_values, fourier_x_axis
@@ -119,7 +119,14 @@ def plot_fourier(unused_param):
     plt.subplots_adjust(bottom=0.30)
 
 
-def plot_gyro(x):
+def plot_gyro(unused_param):
+    """
+    Plot gyroscope values.
+
+     :param unused_param:
+        parameter that is not used, needed in order to comply with matplotlib.animation interface
+    :return: void
+    """
     if len(gyro_values2[0]) < data_quantity:
         return
 
@@ -141,7 +148,14 @@ def plot_gyro(x):
         print "Value error"
 
 
-def plot_accelerations(x):
+def plot_accelerations(unused_param):
+    """
+     Plot acceleration values.
+
+      :param unused_param:
+         parameter that is not used, needed in order to comply with matplotlib.animation interface
+     :return: void
+     """
     if len(acceleration_values[0]) < data_quantity:
         return
     try:
@@ -154,7 +168,13 @@ def plot_accelerations(x):
     except ValueError:
         print "Value error"
 
-def plot_kalman(x):
+def plot_kalman(unused_param):
+    """
+      Plot Kalman of segment of data.
+      :param unused_param:
+         parameter that is not used, needed in order to comply with matplotlib.animation interface
+     :return: void
+     """
     if len(kalman_values[0]) < data_quantity:
         return
     try:

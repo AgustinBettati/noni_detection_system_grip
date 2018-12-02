@@ -14,6 +14,14 @@ def start_connection():
 
 
 def send_measurements(acceleration, gyro1, gyro2, kalman):
+    """
+    Send measurements to websocket server
+    :param acceleration: np.array()
+    :param gyro1: np.array()
+    :param gyro2: np.array()
+    :param kalman: np.array()
+    :return: void
+    """
     start_connection()
     ws.send(json.dumps([ "measurements",
                         [acceleration_to_array(acceleration),
