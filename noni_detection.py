@@ -41,13 +41,16 @@ data_quantity = 150
 fourier_values = np.empty(0)
 """Values for plotting fourier"""
 
+fourier_values_kalman = np.empty(0)
+"""Kalman values for plotting fourier"""
+
 acceleration_values = np.empty(0)
 """Values for plotting raw accelerations"""
 
 gyro_values1 = np.empty(0)
 """Values for plotting raw acceleration"""
 
-kalman_values = np.empty(0)
+kalman_values = np.empty(0)  # kalman_values is never used
 """Values for plotting subtracted accelerations"""
 
 tolerance_of_recalibration = 10
@@ -66,11 +69,12 @@ def get_data_accelerometers():
     Generates the matrices, enters a loop and start getting the accelerometer values
     :return: void
     """
-    global fourier_values, time_last_calibration, acceleration_values, gyro_values1, kalman_values
-    print ("start getting accelerations")
+    global fourier_values, fourier_values_kalman, time_last_calibration, acceleration_values, gyro_values1, kalman_values  # kalman_values is never used
+    print("start getting accelerations")
     quantity = 0
     subtracted_accelerations = []
     subtracted_gyros = []
+    kalman_results = []
 
     try_calibration = False
     if time.time() - time_last_calibration > time_limit_of_recalibration:
@@ -95,6 +99,7 @@ def get_data_accelerometers():
         subtracted_gyro = gyro1.subtract(gyro2)
         subtracted_gyros.append(subtracted_gyro)
         kalman_result = apply_single_kalman_filter(subtracted_acceleration, subtracted_gyro)
+        kalman_results.append(kalman_result)
 
         send(subtracted_acceleration, gyro1, gyro2, kalman_result)
 
@@ -103,10 +108,10 @@ def get_data_accelerometers():
     # no descomentar esta linea porque sino kalman se aplica dos veces
     # kalman_results = apply_kalman_filter(subtracted_accelerations, subtracted_gyros)
 
-
-    print ("accelerations subtracted, making fourier")
+    print("accelerations subtracted, making fourier")
     fourier_values = apply_fourier(subtracted_accelerations)
-    print ("finish fourier")
+    fourier_values_kalman = apply_fourier(kalman_results)
+    print("finish fourier")
     get_data_accelerometers()
 
 
@@ -118,13 +123,13 @@ def print_accelerations(accels):
     :return:void
     """
     for i in range(len(accels)):
-        print ("x: ")
+        print("x: ")
         print(accels[i].x)
-        print (", y: ")
-        print (accels[i].y)
-        print (", z: ")
-        print (accels[i].z)
-        print ("\n")
+        print(", y: ")
+        print(accels[i].y)
+        print(", z: ")
+        print(accels[i].z)
+        print("\n")
 
 
 def get_third_matrix():
@@ -248,6 +253,7 @@ def get_accel(custom_sensor):
     accel_data = custom_sensor.get_accel_data()
     return Measurement(accel_data['x'], accel_data['y'], accel_data['z'])
 
+
 def get_gyro(custom_sensor):
     """
     Gets the acceleration values from a specific sensor
@@ -258,8 +264,6 @@ def get_gyro(custom_sensor):
     """
     gyro_data = custom_sensor.get_gyro_data()
     return Measurement(gyro_data['x'], gyro_data['y'], gyro_data['z'])
-
-
 
 
 def initialization():
