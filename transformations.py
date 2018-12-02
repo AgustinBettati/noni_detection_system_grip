@@ -19,7 +19,7 @@ class Measurement:
 def generate_two_matrices(accel):
     """
     generates matrices y and x. these acceleration must be obtained when no movement is present.
-    :param accel: Accel
+    :param accel: Measurement
         initial accelerations
     :return: array of multi arrays
     """
@@ -36,7 +36,7 @@ def generate_two_matrices(accel):
 def apply_first_transformation(accels, matrices):
     """
     applies transformation using only the first two matrices(y and x)
-    :param accels: Accel
+    :param accels: Measurement
         initial acceleration of sensor
     :param matrices: np.array()
         contains all three matrices
@@ -51,11 +51,11 @@ def apply_first_transformation(accels, matrices):
 def apply_all_transformations(accels, matrices):
     """
     applies transformations to acceleration using the 3 matrices
-    :param accels: Accel
+    :param accels: Measurement
         initial accelerations of sensor
     :param matrices: np.array()
         contains all three matrices
-    :return: Accel
+    :return: Measurement
         returns the acceleration after 3 rotations
     """
     accel_first_tr = np.array([accels.x, accels.y, accels.z]).dot(matrices[1])
@@ -98,9 +98,9 @@ def z_transform(first_sensor_values, second_sensor_values):
     """
     generates the z matrix from a list of the first and second sensor values after the have been in x and y.
     this matrix is used to make the third transformation to one of the sensors in order to adjust orientation.
-    :param first_sensor_values: Accel[]
+    :param first_sensor_values: Measurement[]
         accelerations of the first sensor after two rotations
-    :param second_sensor_values: Accel[]
+    :param second_sensor_values: Measurement[]
         accelerations of the second sensor after two rotations
     :return: np.array()
         a multiarray that contains the z matrix

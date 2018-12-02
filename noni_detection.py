@@ -139,7 +139,7 @@ def get_fourier_x_axis():
 def print_accelerations(accels):
     """
     Prints accelerations, just for testing purposes
-    :param accels: Accel[]
+    :param accels: Measurement[]
         The list of accelerations to be printed
     :return:void
     """
@@ -206,7 +206,7 @@ def get_first_matrices():
 def get_data_accelerometer1():
     """
     Rotates the acceleration values from the sensor 1 and appends them to the acceleration_values.
-    :return: Accel
+    :return: Measurement
         The acceleration rotated
     """
     global x_mat, y_mat, z_mat
@@ -221,7 +221,7 @@ def get_data_accelerometer1():
 def get_data_accelerometer2():
     """
     Rotates the acceleration values from the sensor 2 and appends them to the acceleration_values.
-    :return: Accel
+    :return: Measurement
         The acceleration rotated
     """
     global x_mat2, y_mat2
@@ -236,7 +236,7 @@ def get_data_accelerometer2():
 def get_data_gyro1():
     """
     Rotates the gyro values from the sensor 1.
-    :return: Measurements
+    :return: Measurement
         The gyro values rotated
     """
     global x_mat, y_mat, z_mat
@@ -251,7 +251,7 @@ def get_data_gyro1():
 def get_data_gyro2():
     """
     Rotates the gyro values from the sensor 2.
-    :return: Measurements
+    :return: Measurement
         The gyro values rotated
     """
     global x_mat2, y_mat2
@@ -268,7 +268,7 @@ def get_accel(custom_sensor):
     Gets the acceleration values from a specific sensor
     :param custom_sensor: MPU6050
         The sensor from where the accelerations will be taken.
-    :return: Accel
+    :return: Measurement
         The acceleration sensed
     """
     accel_data = custom_sensor.get_accel_data()
@@ -280,8 +280,8 @@ def get_gyro(custom_sensor):
     Gets the acceleration values from a specific sensor
     :param custom_sensor: MPU6050
         The sensor from where the accelerations will be taken.
-    :return: Accel
-        The acceleration sensed
+    :return: Measurement
+        The Gyroscope sensed
     """
     gyro_data = custom_sensor.get_gyro_data()
     return Measurement(gyro_data['x'], gyro_data['y'], gyro_data['z'])
