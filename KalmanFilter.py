@@ -33,7 +33,7 @@ def kalmanFilterX(accAngle, gyroRate, DT):
                 The acceleration angle
             :param gyroRate: float
                 The angular velocity measured by gyroscope
-            :return: float[] ??
+            :return: float[]
                 An array of kalman results
     """
 
@@ -80,7 +80,7 @@ def kalmanFilterY(accAngle, gyroRate, DT):
                 The acceleration angle
             :param gyroRate: float
                 The angular velocity measured by gyroscope
-            :return: float[] ??
+            :return: float[]
                 An array of kalman results
     """
 
@@ -127,7 +127,7 @@ def kalmanFilterZ(accAngle, gyroRate, DT):
             The acceleration angle
         :param gyroRate: float
             The angular velocity measured by gyroscope
-        :return: float[] ??
+        :return: float[]
             An array of kalman results
     """
 

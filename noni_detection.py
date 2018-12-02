@@ -111,8 +111,37 @@ def get_data_accelerometers():
     print("accelerations subtracted, making fourier")
     fourier_values = apply_fourier(subtracted_accelerations)
     fourier_values_kalman = apply_fourier(kalman_results)
+    fourier_x_axis = get_fourier_x_axis()
     print("finish fourier")
     get_data_accelerometers()
+
+
+def get_fourier_x_axis():
+    """
+        Get fourier x axis based on size and interval.
+
+        :param
+        :return: float[]
+    """
+
+    global fourier_values
+    """The values after applying fourier transform"""
+
+    if len(fourier_values) == 0:
+        return
+
+    n = fourier_values[0].size
+    """Number of sample points"""
+
+    t = interval
+    """Sample spacing"""
+
+    xf = np.linspace(0.0, 1.0 / (2.0 * t), n // 2).tolist()
+    """Equally distributed frequency values"""
+
+    return xf
+
+
 
 
 def print_accelerations(accels):

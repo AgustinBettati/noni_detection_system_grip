@@ -27,6 +27,8 @@ interval = 0.1
 
 fourier_values = np.empty(0)
 """Values for plotting fourier"""
+fourier_x_axis = []
+"""X axis values for plotting fourier"""
 
 acceleration_values = [[0], [0], [0]]
 """Values for plotting raw accelerations"""
@@ -69,7 +71,7 @@ def plot_fourier(unused_param):
     :return:
     """
 
-    global fourier_values
+    global fourier_values, fourier_x_axis
     """The values after applying fourier transform"""
 
     if len(fourier_values) == 0:
@@ -78,16 +80,10 @@ def plot_fourier(unused_param):
     n = fourier_values[0].size
     """Number of sample points"""
 
-    t = interval
-    """Sample spacing"""
-
-    xf = np.linspace(0.0, 1.0 / (2.0 * t), n // 2)
-    """Equally distributed frequency values"""
-
     subplot.clear()
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[0][0:n//2]), 'g')
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[1][0:n//2]), 'r')
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[2][0:n//2]), 'b')
+    subplot.plot(fourier_x_axis, 2.0/n * np.abs(fourier_values[0][0:n//2]), 'g')
+    subplot.plot(fourier_x_axis, 2.0/n * np.abs(fourier_values[1][0:n//2]), 'r')
+    subplot.plot(fourier_x_axis, 2.0/n * np.abs(fourier_values[2][0:n//2]), 'b')
     subplot.grid()
     subplot.set_title('Fourier')
 
