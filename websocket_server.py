@@ -6,24 +6,27 @@ import matplotlib.animation as animation
 import matplotlib.gridspec as gridspec
 import thread
 
-fig = plt.figure()
+fig_fourier = plt.figure()
 """Figure to plot fourier"""
-subplot = fig.add_subplot(1, 1, 1)
+gs_fourier = gridspec.GridSpec(2,1)
+subplot = fig_fourier.add_subplot(gs_fourier[0, :])
+subplot_kalman = fig_fourier.add_subplot(gs_fourier[1, :])
 """Subplot where fourier will be plotted"""
 
-fig2 = plt.figure()
+fig = plt.figure()
 """Figure to plot accelerations"""
 gs = gridspec.GridSpec(3, 2)
-subplot2 = fig2.add_subplot(gs[0, :])
+subplot2 = fig.add_subplot(gs[0, :])
 """Subplot where the accelerations of the first sensor will be plotted"""
-subplot3 = fig2.add_subplot(gs[1, 0])
-subplot4 = fig2.add_subplot(gs[1, 1])
+subplot3 = fig.add_subplot(gs[1, 0])
+subplot4 = fig.add_subplot(gs[1, 1])
 """Subplot where the accelerations of the second sensor will be plotted"""
-subplot5 = fig2.add_subplot(gs[2, :])
+subplot5 = fig.add_subplot(gs[2, :])
 """Subplot where the rotated accelerations of the two sensors will be plotted"""
 
 fourier_values = np.empty(0)
 """Values for plotting fourier"""
+fourier_kalman_values = np.empty(0)
 fourier_x_axis = []
 """X axis values for plotting fourier"""
 
@@ -47,16 +50,37 @@ x_axis = np.linspace(1, data_quantity, data_quantity)
 class SimpleEcho(WebSocket):
 
     def handleMessage(self):
-        global acceleration_values, gyro_values1, kalman_values, fourier_values, gyro_values2
+        """
+        Receive messages sent by the websocket client
+        The format of the message is as follow:
+        result[0]: type of message (measurements or fourier)
+        result[1]: body of the message
+        :return:
+        """
 
-        # echo message back to client
-        # self.sendMessage(self.data)
         result = json.loads(self.data)
-        acceleration_values = append_acceleration(acceleration_values, result[0])
-        gyro_values1 = append_acceleration(gyro_values1, result[1])
-        gyro_values2 = append_acceleration(gyro_values2, result[2])
-        kalman_values = append_acceleration(kalman_values, result[3])
+        if result[0] == "measurements":
+            handle_measurements(result[1])
+        else:
+            handle_fourier(result[1])
 
+
+
+def handle_measurements(result):
+    global acceleration_values, gyro_values1, kalman_values, fourier_values, gyro_values2
+
+    acceleration_values = append_acceleration(acceleration_values, result[0])
+    gyro_values1 = append_acceleration(gyro_values1, result[1])
+    gyro_values2 = append_acceleration(gyro_values2, result[2])
+    kalman_values = append_acceleration(kalman_values, result[3])
+
+
+def handle_fourier(result):
+    global fourier_values, fourier_kalman_values, fourier_x_axis
+
+    fourier_values = result[0]
+    fourier_kalman_values = result[1]
+    fourier_x_axis = result[2]
 
 
 def plot_fourier(unused_param):
@@ -83,6 +107,13 @@ def plot_fourier(unused_param):
     subplot.plot(fourier_x_axis, 2.0/n * np.abs(fourier_values[2][0:n//2]), 'b')
     subplot.grid()
     subplot.set_title('Fourier')
+
+    subplot_kalman.clear()
+    subplot_kalman.plot(fourier_x_axis, 2.0/n * np.abs(fourier_kalman_values[0][0:n//2]), 'g')
+    subplot_kalman.plot(fourier_x_axis, 2.0/n * np.abs(fourier_kalman_values[1][0:n//2]), 'r')
+    subplot_kalman.plot(fourier_x_axis, 2.0/n * np.abs(fourier_kalman_values[2][0:n//2]), 'b')
+    subplot_kalman.grid()
+    subplot_kalman.set_title('Fourier with kalman')
 
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.30)
@@ -166,15 +197,15 @@ def main():
     animation_interval = 100
     """Refresh time for the animation plotter. Extra 10 ms to ensure the update of the data."""
 
-    ani = animation.FuncAnimation(fig, plot_fourier, interval=animation_interval)
+    ani = animation.FuncAnimation(fig_fourier, plot_fourier, interval=animation_interval)
     """Start the 1st plot animation"""
 
-    ani2 = animation.FuncAnimation(fig2, plot_accelerations, interval=animation_interval)
+    ani2 = animation.FuncAnimation(fig, plot_accelerations, interval=animation_interval)
     """Start the 2nd plot animation"""
 
-    ani3 = animation.FuncAnimation(fig2, plot_gyro, interval=animation_interval)
+    ani3 = animation.FuncAnimation(fig, plot_gyro, interval=animation_interval)
 
-    ani4 = animation.FuncAnimation(fig2, plot_kalman, interval=animation_interval)
+    ani4 = animation.FuncAnimation(fig, plot_kalman, interval=animation_interval)
 
     plt.show()
 

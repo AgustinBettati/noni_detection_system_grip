@@ -12,7 +12,7 @@ import time
 from transformations import apply_first_transformation, generate_two_matrices, \
     apply_all_transformations, z_transform, Measurement
 from fourier import apply_fourier
-from websocket_client import send, start_connection
+from websocket_client import send_measurements, send_fourier
 
 sensor = MPU6050(0x68)
 """Creates a new instance of the MPU6050 class for the first sensor"""
@@ -104,16 +104,13 @@ def get_data_accelerometers():
         kalman_result = apply_single_kalman_filter(subtracted_acceleration, subtracted_gyro)
         kalman_results.append(kalman_result)
 
-        send(subtracted_acceleration, gyro1, gyro2, kalman_result)
-
-    # subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
-    # subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)
-    # no descomentar esta linea porque sino kalman se aplica dos veces
-    # kalman_results = apply_kalman_filter(subtracted_accelerations, subtracted_gyros)
+        send_measurements(subtracted_acceleration, gyro1, gyro2, kalman_result)
 
     print("accelerations subtracted, making fourier")
     fourier_values = apply_fourier(subtracted_accelerations)
     fourier_values_kalman = apply_fourier(kalman_results)
+    fourier_x_axis = get_fourier_x_axis()
+    send_fourier(fourier_values, fourier_values_kalman, fourier_x_axis)
     print("finish fourier")
     get_data_accelerometers()
 
@@ -299,7 +296,6 @@ def initialization():
     global time_last_calibration
 
     print("initializing")
-    start_connection()
     get_first_matrices()
     get_third_matrix()
     time_last_calibration = time.time()
