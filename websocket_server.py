@@ -6,38 +6,42 @@ import matplotlib.animation as animation
 import matplotlib.gridspec as gridspec
 import thread
 
-fig = plt.figure()
+fig_fourier = plt.figure()
 """Figure to plot fourier"""
-subplot = fig.add_subplot(1, 1, 1)
+gs_fourier = gridspec.GridSpec(2,1)
+subplot = fig_fourier.add_subplot(gs_fourier[0, :])
+subplot_kalman = fig_fourier.add_subplot(gs_fourier[1, :])
 """Subplot where fourier will be plotted"""
 
-fig2 = plt.figure()
+fig = plt.figure()
 """Figure to plot accelerations"""
-gs = gridspec.GridSpec(2, 2)
-subplot2 = fig2.add_subplot(gs[0, 0])
+gs = gridspec.GridSpec(3, 2)
+subplot2 = fig.add_subplot(gs[0, :])
 """Subplot where the accelerations of the first sensor will be plotted"""
-subplot3 = fig2.add_subplot(gs[0, 1])
+subplot3 = fig.add_subplot(gs[1, 0])
+subplot4 = fig.add_subplot(gs[1, 1])
 """Subplot where the accelerations of the second sensor will be plotted"""
-subplot4 = fig2.add_subplot(gs[1, :])
+subplot5 = fig.add_subplot(gs[2, :])
 """Subplot where the rotated accelerations of the two sensors will be plotted"""
-
-interval = 0.1
-"""Interval between two accelerations in seconds"""
 
 fourier_values = np.empty(0)
 """Values for plotting fourier"""
+fourier_kalman_values = np.empty(0)
+fourier_x_axis = []
+"""X axis values for plotting fourier"""
 
 acceleration_values = [[0], [0], [0]]
 """Values for plotting raw accelerations"""
 
-gyro_values = [[0], [0], [0]]
+gyro_values1 = [[0], [0], [0]]
+gyro_values2 = [[0], [0], [0]]
 """Values for plotting raw acceleration"""
 
 kalman_values = [[0], [0], [0]]
 """Values for plotting subtracted accelerations"""
 
 
-data_quantity = 100
+data_quantity = 500
 
 
 x_axis = np.linspace(1, data_quantity, data_quantity)
@@ -46,17 +50,37 @@ x_axis = np.linspace(1, data_quantity, data_quantity)
 class SimpleEcho(WebSocket):
 
     def handleMessage(self):
-        global acceleration_values, gyro_values, kalman_values, fourier_values
+        """
+        Receive messages sent by the websocket client
+        The format of the message is as follow:
+        result[0]: type of message (measurements or fourier)
+        result[1]: body of the message
+        :return:
+        """
 
-        # echo message back to client
-        # self.sendMessage(self.data)
         result = json.loads(self.data)
-        acceleration_values = append_acceleration(acceleration_values, result[0])
-        gyro_values = append_acceleration(gyro_values, result[1])
-        kalman_values = append_acceleration(kalman_values, result[2])
+        if result[0] == "measurements":
+            handle_measurements(result[1])
+        else:
+            handle_fourier(result[1])
 
-        if result[3]:
-            fourier_values = result[3]
+
+
+def handle_measurements(result):
+    global acceleration_values, gyro_values1, kalman_values, fourier_values, gyro_values2
+
+    acceleration_values = append_acceleration(acceleration_values, result[0])
+    gyro_values1 = append_acceleration(gyro_values1, result[1])
+    gyro_values2 = append_acceleration(gyro_values2, result[2])
+    kalman_values = append_acceleration(kalman_values, result[3])
+
+
+def handle_fourier(result):
+    global fourier_values, fourier_kalman_values, fourier_x_axis
+
+    fourier_values = result[0]
+    fourier_kalman_values = result[1]
+    fourier_x_axis = result[2]
 
 
 def plot_fourier(unused_param):
@@ -65,10 +89,10 @@ def plot_fourier(unused_param):
 
     :param unused_param:
         parameter that is not used, needed in order to comply with matplotlib.animation interface
-    :return:
+    :return: void
     """
 
-    global fourier_values
+    global fourier_values, fourier_x_axis
     """The values after applying fourier transform"""
 
     if len(fourier_values) == 0:
@@ -77,52 +101,91 @@ def plot_fourier(unused_param):
     n = fourier_values[0].size
     """Number of sample points"""
 
-    t = interval
-    """Sample spacing"""
-
-    xf = np.linspace(0.0, 1.0 / (2.0 * t), n // 2)
-    """Equally distributed frequency values"""
-
     subplot.clear()
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[0][0:n//2]), 'g')
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[1][0:n//2]), 'r')
-    subplot.plot(xf, 2.0/n * np.abs(fourier_values[2][0:n//2]), 'b')
+    subplot.plot(fourier_x_axis, 2.0/n * np.abs(fourier_values[0][0:n//2]), 'g')
+    subplot.plot(fourier_x_axis, 2.0/n * np.abs(fourier_values[1][0:n//2]), 'r')
+    subplot.plot(fourier_x_axis, 2.0/n * np.abs(fourier_values[2][0:n//2]), 'b')
     subplot.grid()
     subplot.set_title('Fourier')
+
+    subplot_kalman.clear()
+    subplot_kalman.plot(fourier_x_axis, 2.0/n * np.abs(fourier_kalman_values[0][0:n//2]), 'g')
+    subplot_kalman.plot(fourier_x_axis, 2.0/n * np.abs(fourier_kalman_values[1][0:n//2]), 'r')
+    subplot_kalman.plot(fourier_x_axis, 2.0/n * np.abs(fourier_kalman_values[2][0:n//2]), 'b')
+    subplot_kalman.grid()
+    subplot_kalman.set_title('Fourier with kalman')
 
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.30)
 
 
-def plot_gyro():
-    if len(gyro_values[0]) < data_quantity:
-        return
-    subplot3.clear()
-    subplot3.plot(x_axis, gyro_values[0], 'g')
-    subplot3.plot(x_axis, gyro_values[1], 'r')
-    subplot3.plot(x_axis, gyro_values[2], 'b')
-    subplot3.grid()
-    subplot3.set_ylim(-15, 15)
+def plot_gyro(unused_param):
+    """
+    Plot gyroscope values.
 
-def plot_accelerations():
+     :param unused_param:
+        parameter that is not used, needed in order to comply with matplotlib.animation interface
+    :return: void
+    """
+    if len(gyro_values2[0]) < data_quantity:
+        return
+
+    try:
+        subplot3.clear()
+        subplot3.plot(x_axis, gyro_values1[0], 'g')
+        subplot3.plot(x_axis, gyro_values1[1], 'r')
+        subplot3.plot(x_axis, gyro_values1[2], 'b')
+        subplot3.grid()
+        subplot3.set_ylim(-15, 15)
+
+        subplot4.clear()
+        subplot4.plot(x_axis, gyro_values2[0], 'g')
+        subplot4.plot(x_axis, gyro_values2[1], 'r')
+        subplot4.plot(x_axis, gyro_values2[2], 'b')
+        subplot4.grid()
+        subplot4.set_ylim(-15, 15)
+    except ValueError:
+        print "Value error"
+
+
+def plot_accelerations(unused_param):
+    """
+     Plot acceleration values.
+
+      :param unused_param:
+         parameter that is not used, needed in order to comply with matplotlib.animation interface
+     :return: void
+     """
     if len(acceleration_values[0]) < data_quantity:
         return
-    subplot2.clear()
-    subplot2.plot(x_axis, acceleration_values[0], 'g')
-    subplot2.plot(x_axis, acceleration_values[1], 'r')
-    subplot2.plot(x_axis, acceleration_values[2], 'b')
-    subplot2.grid()
-    subplot2.set_ylim(-15, 15)
+    try:
+        subplot2.clear()
+        subplot2.plot(x_axis, acceleration_values[0], 'g')
+        subplot2.plot(x_axis, acceleration_values[1], 'r')
+        subplot2.plot(x_axis, acceleration_values[2], 'b')
+        subplot2.grid()
+        subplot2.set_ylim(-15, 15)
+    except ValueError:
+        print "Value error"
 
-def plot_kalman():
+def plot_kalman(unused_param):
+    """
+      Plot Kalman of segment of data.
+      :param unused_param:
+         parameter that is not used, needed in order to comply with matplotlib.animation interface
+     :return: void
+     """
     if len(kalman_values[0]) < data_quantity:
         return
-    subplot4.clear()
-    subplot4.plot(x_axis, kalman_values[0], 'g')
-    subplot4.plot(x_axis, kalman_values[1], 'r')
-    subplot4.plot(x_axis, kalman_values[2], 'b')
-    subplot4.grid()
-    subplot4.set_ylim(-15, 15)
+    try:
+        subplot5.clear()
+        subplot5.plot(x_axis, kalman_values[0], 'g')
+        subplot5.plot(x_axis, kalman_values[1], 'r')
+        subplot5.plot(x_axis, kalman_values[2], 'b')
+        subplot5.grid()
+        subplot5.set_ylim(-15, 15)
+    except ValueError:
+        print "Value error"
 
 def append_acceleration(accelerations, new_acceleration):
     temp = accelerations[:]
@@ -154,18 +217,17 @@ def main():
     animation_interval = 100
     """Refresh time for the animation plotter. Extra 10 ms to ensure the update of the data."""
 
-    ani = animation.FuncAnimation(fig, plot_fourier, fargs=([]), interval=animation_interval)
+    ani = animation.FuncAnimation(fig_fourier, plot_fourier, interval=animation_interval)
     """Start the 1st plot animation"""
 
-    ani2 = animation.FuncAnimation(fig2, plot_accelerations, fargs=([]), interval=animation_interval)
+    ani2 = animation.FuncAnimation(fig, plot_accelerations, interval=animation_interval)
     """Start the 2nd plot animation"""
 
-    ani3 = animation.FuncAnimation(fig2, plot_gyro, fargs=([]), interval=animation_interval)
+    ani3 = animation.FuncAnimation(fig, plot_gyro, interval=animation_interval)
 
-    ani4 = animation.FuncAnimation(fig2, plot_kalman, fargs=([]), interval=animation_interval)
+    ani4 = animation.FuncAnimation(fig, plot_kalman, interval=animation_interval)
 
-
-plt.show()
+    plt.show()
 
 main()
 

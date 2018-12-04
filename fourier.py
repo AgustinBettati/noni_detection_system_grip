@@ -24,7 +24,7 @@ def apply_fourier(accels):
 
 def apply_fourier_x(accels):
     """
-    Applies fourier to x values of Accel
+    Applies fourier to x values of Measurement
 
     :param accels: np.array()
     :return:
@@ -37,9 +37,9 @@ def apply_fourier_x(accels):
 
 def apply_fourier_y(accels):
     """
-    Applies fourier to y values of Accel
+    Applies fourier to y values of Measurement
 
-    :param accels: np.array()
+    :param accels:Measurement
     :return:
     """
 
@@ -51,7 +51,7 @@ def apply_fourier_y(accels):
 
 def apply_fourier_z(accels):
     """
-    Applies fourier to z values of Accel
+    Applies fourier to z values of Measurement
 
     :param accels: np.array()
     :return:

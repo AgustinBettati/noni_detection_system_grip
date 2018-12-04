@@ -12,7 +12,7 @@ import time
 from transformations import apply_first_transformation, generate_two_matrices, \
     apply_all_transformations, z_transform, Measurement
 from fourier import apply_fourier
-from websocket_client import send, start_connection
+from websocket_client import send_measurements, send_fourier
 
 sensor = MPU6050(0x68)
 """Creates a new instance of the MPU6050 class for the first sensor"""
@@ -41,13 +41,19 @@ data_quantity = 150
 fourier_values = np.empty(0)
 """Values for plotting fourier"""
 
+fourier_x_axis = []
+"""X axis values for plotting fourier"""
+
+fourier_values_kalman = np.empty(0)
+"""Kalman values for plotting fourier"""
+
 acceleration_values = np.empty(0)
 """Values for plotting raw accelerations"""
 
-gyro_values = np.empty(0)
+gyro_values1 = np.empty(0)
 """Values for plotting raw acceleration"""
 
-kalman_values = np.empty(0)
+kalman_values = np.empty(0)  # kalman_values is never used
 """Values for plotting subtracted accelerations"""
 
 tolerance_of_recalibration = 10
@@ -66,11 +72,12 @@ def get_data_accelerometers():
     Generates the matrices, enters a loop and start getting the accelerometer values
     :return: void
     """
-    global fourier_values, time_last_calibration, acceleration_values, gyro_values, kalman_values
-    print ("start getting accelerations")
+    global fourier_values, fourier_values_kalman, time_last_calibration, acceleration_values, gyro_values1, kalman_values  # kalman_values is never used
+    print("start getting accelerations")
     quantity = 0
     subtracted_accelerations = []
     subtracted_gyros = []
+    kalman_results = []
 
     try_calibration = False
     if time.time() - time_last_calibration > time_limit_of_recalibration:
@@ -95,36 +102,55 @@ def get_data_accelerometers():
         subtracted_gyro = gyro1.subtract(gyro2)
         subtracted_gyros.append(subtracted_gyro)
         kalman_result = apply_single_kalman_filter(subtracted_acceleration, subtracted_gyro)
+        kalman_results.append(kalman_result)
 
-        send(subtracted_acceleration, subtracted_gyro, kalman_result)
+        send_measurements(subtracted_acceleration, gyro1, gyro2, kalman_result)
 
-    # subtracted_accelerations = subtract_measurements(acceleration_values1, acceleration_values2)
-    # subtracted_gyros = subtract_measurements(gyro_values1, gyro_values2)
-    # no descomentar esta linea porque sino kalman se aplica dos veces
-    # kalman_results = apply_kalman_filter(subtracted_accelerations, subtracted_gyros)
-
-
-    print ("accelerations subtracted, making fourier")
+    print("accelerations subtracted, making fourier")
     fourier_values = apply_fourier(subtracted_accelerations)
-    print ("finish fourier")
+    fourier_values_kalman = apply_fourier(kalman_results)
+    fourier_x_axis = get_fourier_x_axis()
+    send_fourier(fourier_values, fourier_values_kalman, fourier_x_axis)
+    print("finish fourier")
     get_data_accelerometers()
+
+
+def get_fourier_x_axis():
+    """
+        Get fourier x axis based on size and interval.
+
+        :param
+        :return: void
+    """
+
+    global fourier_x_axis
+
+    n = data_quantity
+    """Number of sample points"""
+
+    t = interval
+    """Sample spacing"""
+
+    fourier_x_axis = np.linspace(0.0, 1.0 / (2.0 * t), n // 2).tolist()
+    """Equally distributed frequency values"""
+
 
 
 def print_accelerations(accels):
     """
     Prints accelerations, just for testing purposes
-    :param accels: Accel[]
+    :param accels: Measurement[]
         The list of accelerations to be printed
     :return:void
     """
     for i in range(len(accels)):
-        print ("x: ")
+        print("x: ")
         print(accels[i].x)
-        print (", y: ")
-        print (accels[i].y)
-        print (", z: ")
-        print (accels[i].z)
-        print ("\n")
+        print(", y: ")
+        print(accels[i].y)
+        print(", z: ")
+        print(accels[i].z)
+        print("\n")
 
 
 def get_third_matrix():
@@ -180,7 +206,7 @@ def get_first_matrices():
 def get_data_accelerometer1():
     """
     Rotates the acceleration values from the sensor 1 and appends them to the acceleration_values.
-    :return: Accel
+    :return: Measurement
         The acceleration rotated
     """
     global x_mat, y_mat, z_mat
@@ -195,7 +221,7 @@ def get_data_accelerometer1():
 def get_data_accelerometer2():
     """
     Rotates the acceleration values from the sensor 2 and appends them to the acceleration_values.
-    :return: Accel
+    :return: Measurement
         The acceleration rotated
     """
     global x_mat2, y_mat2
@@ -210,7 +236,7 @@ def get_data_accelerometer2():
 def get_data_gyro1():
     """
     Rotates the gyro values from the sensor 1.
-    :return: Measurements
+    :return: Measurement
         The gyro values rotated
     """
     global x_mat, y_mat, z_mat
@@ -225,7 +251,7 @@ def get_data_gyro1():
 def get_data_gyro2():
     """
     Rotates the gyro values from the sensor 2.
-    :return: Measurements
+    :return: Measurement
         The gyro values rotated
     """
     global x_mat2, y_mat2
@@ -242,24 +268,23 @@ def get_accel(custom_sensor):
     Gets the acceleration values from a specific sensor
     :param custom_sensor: MPU6050
         The sensor from where the accelerations will be taken.
-    :return: Accel
+    :return: Measurement
         The acceleration sensed
     """
     accel_data = custom_sensor.get_accel_data()
     return Measurement(accel_data['x'], accel_data['y'], accel_data['z'])
+
 
 def get_gyro(custom_sensor):
     """
     Gets the acceleration values from a specific sensor
     :param custom_sensor: MPU6050
         The sensor from where the accelerations will be taken.
-    :return: Accel
-        The acceleration sensed
+    :return: Measurement
+        The Gyroscope sensed
     """
     gyro_data = custom_sensor.get_gyro_data()
     return Measurement(gyro_data['x'], gyro_data['y'], gyro_data['z'])
-
-
 
 
 def initialization():
@@ -271,10 +296,10 @@ def initialization():
     global time_last_calibration
 
     print("initializing")
-    start_connection()
     get_first_matrices()
     get_third_matrix()
     time_last_calibration = time.time()
+    get_fourier_x_axis()
     get_data_accelerometers()
 
 

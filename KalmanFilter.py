@@ -33,7 +33,7 @@ def kalmanFilterX(accAngle, gyroRate, DT):
                 The acceleration angle
             :param gyroRate: float
                 The angular velocity measured by gyroscope
-            :return: float[] ??
+            :return: float[]
                 An array of kalman results
     """
 
@@ -80,7 +80,7 @@ def kalmanFilterY(accAngle, gyroRate, DT):
                 The acceleration angle
             :param gyroRate: float
                 The angular velocity measured by gyroscope
-            :return: float[] ??
+            :return: float[]
                 An array of kalman results
     """
 
@@ -127,7 +127,7 @@ def kalmanFilterZ(accAngle, gyroRate, DT):
             The acceleration angle
         :param gyroRate: float
             The angular velocity measured by gyroscope
-        :return: float[] ??
+        :return: float[]
             An array of kalman results
     """
 
@@ -182,9 +182,9 @@ def apply_kalman_filter(accelerations, gyros):
 
     result = []
     for i in range(len(accelerations)):
-        x = kalmanFilterX(accelerations[i].x, gyros[i].x, DT)
-        y = kalmanFilterY(accelerations[i].y, gyros[i].y, DT)
-        z = kalmanFilterZ(accelerations[i].z, gyros[i].z, DT)
+        x = kalmanFilterX(getXAccAngle(accelerations[i].x), gyros[i].x, DT)
+        y = kalmanFilterY(getYAccAngle(accelerations[i].y), gyros[i].y, DT)
+        z = kalmanFilterZ(getZAccAngle(accelerations[i].z), gyros[i].z, DT)
 
         from transformations import Measurement
         result.append(Measurement(x, y, z))

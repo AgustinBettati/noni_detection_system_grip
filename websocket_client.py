@@ -13,12 +13,28 @@ def start_connection():
             print "reconnecting"
 
 
-def send(acceleration, gyro, kalman):
+def send_measurements(acceleration, gyro1, gyro2, kalman):
+    """
+    Send measurements to websocket server
+    :param acceleration: np.array()
+    :param gyro1: np.array()
+    :param gyro2: np.array()
+    :param kalman: np.array()
+    :return: void
+    """
     start_connection()
-    ws.send(json.dumps(
-        [acceleration_to_array(acceleration),
-         acceleration_to_array(gyro),
-         acceleration_to_array(kalman)]))
+    ws.send(json.dumps([ "measurements",
+                        [acceleration_to_array(acceleration),
+                         acceleration_to_array(gyro1),
+                         acceleration_to_array(gyro2),
+                         acceleration_to_array(kalman)]]))
+
+def send_fourier(fourier, fourier_kalman, x_axis):
+    start_connection()
+    ws.send(json.dumps([ "fourier",
+                         [acceleration_to_array(fourier),
+                          acceleration_to_array(fourier_kalman),
+                          acceleration_to_array(x_axis)]]))
 
 def acceleration_to_array(acceleration):
     return [acceleration.x, acceleration.y, acceleration.z]
