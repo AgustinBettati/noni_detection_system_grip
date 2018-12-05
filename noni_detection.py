@@ -26,7 +26,7 @@ x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
 """Matrices use for rotations"""
 
-third_matrix_values = 500
+third_matrix_values = 10
 """Quantity of values to get before calculating the third matrix"""
 
 third_matrix_interval = 0.05
@@ -35,7 +35,7 @@ third_matrix_interval = 0.05
 interval = 0.1
 """Interval between two accelerations in seconds"""
 
-data_quantity = 150
+data_quantity = 500
 """Quantity of accelerations to get before doing fourier"""
 
 fourier_values = np.empty(0)
@@ -109,7 +109,6 @@ def get_data_accelerometers():
     print("accelerations subtracted, making fourier")
     fourier_values = apply_fourier(subtracted_accelerations)
     fourier_values_kalman = apply_fourier(kalman_results)
-    fourier_x_axis = get_fourier_x_axis()
     send_fourier(fourier_values, fourier_values_kalman, fourier_x_axis)
     print("finish fourier")
     get_data_accelerometers()
@@ -138,6 +137,7 @@ def get_fourier_x_axis():
 
 def print_accelerations(accels):
     """
+    #FIXME
     Prints accelerations, just for testing purposes
     :param accels: Measurement[]
         The list of accelerations to be printed
@@ -205,6 +205,7 @@ def get_first_matrices():
 
 def get_data_accelerometer1():
     """
+    #FIXME
     Rotates the acceleration values from the sensor 1 and appends them to the acceleration_values.
     :return: Measurement
         The acceleration rotated
@@ -220,6 +221,7 @@ def get_data_accelerometer1():
 
 def get_data_accelerometer2():
     """
+    #FIXME
     Rotates the acceleration values from the sensor 2 and appends them to the acceleration_values.
     :return: Measurement
         The acceleration rotated
@@ -265,6 +267,7 @@ def get_data_gyro2():
 
 def get_accel(custom_sensor):
     """
+    #FIXME
     Gets the acceleration values from a specific sensor
     :param custom_sensor: MPU6050
         The sensor from where the accelerations will be taken.

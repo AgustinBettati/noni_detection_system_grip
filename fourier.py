@@ -19,7 +19,7 @@ def apply_fourier(accels):
         x_values.append(accel.x)
         y_values.append(accel.y)
         z_values.append(accel.z)
-    return [fft(x_values), fft(y_values), fft(z_values)]
+    return [fft(x_values).tolist(), fft(y_values).tolist(), fft(z_values).tolist()]
 
 
 def apply_fourier_x(accels):
