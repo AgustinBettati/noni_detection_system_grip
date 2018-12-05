@@ -10,6 +10,7 @@ fig_fourier = plt.figure()
 """Figure to plot fourier"""
 gs_fourier = gridspec.GridSpec(2,1)
 subplot = fig_fourier.add_subplot(gs_fourier[0, :])
+#TODO ADD COMMENT
 subplot_kalman = fig_fourier.add_subplot(gs_fourier[1, :])
 """Subplot where fourier will be plotted"""
 
@@ -27,6 +28,8 @@ subplot5 = fig.add_subplot(gs[2, :])
 fourier_values = np.empty(0)
 """Values for plotting fourier"""
 fourier_kalman_values = np.empty(0)
+#TODO ADD COMMENT
+
 fourier_x_axis = []
 """X axis values for plotting fourier"""
 
@@ -41,11 +44,11 @@ kalman_values = [[0], [0], [0]]
 """Values for plotting subtracted accelerations"""
 
 
-data_quantity = 500
-
+data_quantity = 100
+#TODO ADD COMMENT
 
 x_axis = np.linspace(1, data_quantity, data_quantity)
-
+#TODO ADD COMMENT
 
 class SimpleEcho(WebSocket):
 
@@ -67,6 +70,8 @@ class SimpleEcho(WebSocket):
 
 
 def handle_measurements(result):
+    #TODO ADD COMMENT. AGREGAR QUE HAY EN CADA POSICION DEL ARRAY
+
     global acceleration_values, gyro_values1, kalman_values, fourier_values, gyro_values2
 
     acceleration_values = append_acceleration(acceleration_values, result[0])
@@ -76,11 +81,23 @@ def handle_measurements(result):
 
 
 def handle_fourier(result):
+    #TODO ADD COMMENT. AGREGAR QUE HAY EN CADA POSICION DEL ARRAY
+
     global fourier_values, fourier_kalman_values, fourier_x_axis
 
-    fourier_values = result[0]
-    fourier_kalman_values = result[1]
+    fourier_values = deserialize_fourier(result[0])
+
+    fourier_kalman_values = deserialize_fourier(result[1])
     fourier_x_axis = result[2]
+
+
+def deserialize_fourier(fourier):
+    new_fourier = []
+    for i in range (3):
+        new_fourier.append([])
+        for j in fourier[i].split(","):
+            new_fourier[i].append(complex(j))
+    return new_fourier
 
 
 def plot_fourier(unused_param):
@@ -98,7 +115,7 @@ def plot_fourier(unused_param):
     if len(fourier_values) == 0:
         return
 
-    n = fourier_values[0].size
+    n = len(fourier_values[0])
     """Number of sample points"""
 
     subplot.clear()
@@ -146,6 +163,7 @@ def plot_gyro(unused_param):
         subplot4.set_ylim(-15, 15)
     except ValueError:
         print "Value error"
+        start_animations()
 
 
 def plot_accelerations(unused_param):
@@ -167,9 +185,11 @@ def plot_accelerations(unused_param):
         subplot2.set_ylim(-15, 15)
     except ValueError:
         print "Value error"
+        start_animations()
 
 def plot_kalman(unused_param):
     """
+        TODO NO SE ENTIENDE
       Plot Kalman of segment of data.
       :param unused_param:
          parameter that is not used, needed in order to comply with matplotlib.animation interface
@@ -186,8 +206,15 @@ def plot_kalman(unused_param):
         subplot5.set_ylim(-15, 15)
     except ValueError:
         print "Value error"
+        start_animations()
 
 def append_acceleration(accelerations, new_acceleration):
+    """
+    TODO ADD COMMENT
+    :param accelerations:
+    :param new_acceleration:
+    :return:
+    """
     temp = accelerations[:]
     temp[0].append(new_acceleration[0])
     temp[1].append(new_acceleration[1])
@@ -200,20 +227,14 @@ def append_acceleration(accelerations, new_acceleration):
 
 
 def start_server():
+    """
+    TODO ADD COMMENT
+    :return:
+    """
     server = SimpleWebSocketServer('', 8000, SimpleEcho)
     server.serveforever()
 
-
-
-def main():
-    """
-    Start the thread and the plotters
-
-    :return:
-    """
-    thread.start_new_thread(start_server, ())
-    """The function initialization starts in a new thread"""
-
+def start_animations():
     animation_interval = 100
     """Refresh time for the animation plotter. Extra 10 ms to ensure the update of the data."""
 
@@ -224,10 +245,23 @@ def main():
     """Start the 2nd plot animation"""
 
     ani3 = animation.FuncAnimation(fig, plot_gyro, interval=animation_interval)
+    #TODO ADD COMMENT
 
     ani4 = animation.FuncAnimation(fig, plot_kalman, interval=animation_interval)
+    #TODO ADD COMMENT
 
     plt.show()
+
+def main():
+    """
+    Start the thread and the plotters
+
+    :return:
+    """
+    thread.start_new_thread(start_server, ())
+    """The function initialization starts in a new thread"""
+
+    start_animations()
 
 main()
 
