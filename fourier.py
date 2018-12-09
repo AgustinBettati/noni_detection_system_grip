@@ -8,8 +8,11 @@ def apply_fourier(accels):
 
     :param accels: np.array()
         acceleration values to apply fourier to
-    :return: np.array()
-        numpy array of the transformed acceleration values
+    :return: python list
+        A python list where:
+        [0]: fourier of the x values of accels
+        [1]: fourier of the y values of accels
+        [2]: fourier of the z values of accels
     """
     x_values = []
     y_values = []
@@ -27,7 +30,7 @@ def apply_fourier_x(accels):
     Applies fourier to x values of Measurement
 
     :param accels: np.array()
-    :return:
+    :return: np.array()
     """
     x_values = np.empty((0, len(accels)))
     for accel in accels:
@@ -40,7 +43,7 @@ def apply_fourier_y(accels):
     Applies fourier to y values of Measurement
 
     :param accels:Measurement
-    :return:
+    :return: np.array()
     """
 
     y_values = np.empty((0, len(accels)))
@@ -54,7 +57,7 @@ def apply_fourier_z(accels):
     Applies fourier to z values of Measurement
 
     :param accels: np.array()
-    :return:
+    :return: np.array()
     """
 
     z_values = np.empty((0, len(accels)))

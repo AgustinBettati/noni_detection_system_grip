@@ -1,18 +1,15 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import matplotlib.gridspec as gridspec
-import thread
 import datetime as datetime
+import sys
 
-from KalmanFilter import apply_kalman_filter, apply_single_kalman_filter
+from KalmanFilter import apply_single_kalman_filter
 from MPU6050 import MPU6050
 from time import sleep
 import time
 from transformations import apply_first_transformation, generate_two_matrices, \
     apply_all_transformations, z_transform, Measurement
 from fourier import apply_fourier
-from websocket_client import send_measurements, send_fourier
+from websocket_client import send_measurements, send_fourier, set_ip, start_connection
 
 sensor = MPU6050(0x68)
 """Creates a new instance of the MPU6050 class for the first sensor"""
@@ -85,8 +82,8 @@ def get_data_accelerometers():
 
     while quantity < data_quantity:
         now = datetime.datetime.now()
-        accel1 = get_data_accelerometer1()
-        accel2 = get_data_accelerometer2()
+        accel1 = get_data_measurements1()
+        accel2 = get_data_measurements2()
         gyro1 = get_data_gyro1()
         gyro2 = get_data_gyro2()
         if try_calibration and accel1.module() > tolerance_of_recalibration:
@@ -132,25 +129,6 @@ def get_fourier_x_axis():
 
     fourier_x_axis = np.linspace(0.0, 1.0 / (2.0 * t), n // 2).tolist()
     """Equally distributed frequency values"""
-
-
-
-def print_accelerations(accels):
-    """
-    #FIXME
-    Prints accelerations, just for testing purposes
-    :param accels: Measurement[]
-        The list of accelerations to be printed
-    :return:void
-    """
-    for i in range(len(accels)):
-        print("x: ")
-        print(accels[i].x)
-        print(", y: ")
-        print(accels[i].y)
-        print(", z: ")
-        print(accels[i].z)
-        print("\n")
 
 
 def get_third_matrix():
@@ -203,12 +181,11 @@ def get_first_matrices():
     print("Obtained first two matrices")
 
 
-def get_data_accelerometer1():
+def get_data_measurements1():
     """
-    #FIXME
-    Rotates the acceleration values from the sensor 1 and appends them to the acceleration_values.
+    Rotates the measurements values from the sensor 1.
     :return: Measurement
-        The acceleration rotated
+        The measurement rotated
     """
     global x_mat, y_mat, z_mat
 
@@ -219,12 +196,11 @@ def get_data_accelerometer1():
     return Measurement(values_rotated.x, values_rotated.y, values_rotated.z)
 
 
-def get_data_accelerometer2():
+def get_data_measurements2():
     """
-    #FIXME
-    Rotates the acceleration values from the sensor 2 and appends them to the acceleration_values.
+    Rotates the measurements values from the sensor 2.
     :return: Measurement
-        The acceleration rotated
+        The measurement rotated
     """
     global x_mat2, y_mat2
 
@@ -267,12 +243,11 @@ def get_data_gyro2():
 
 def get_accel(custom_sensor):
     """
-    #FIXME
-    Gets the acceleration values from a specific sensor
+    Gets the measurement values from a specific sensor
     :param custom_sensor: MPU6050
-        The sensor from where the accelerations will be taken.
+        The sensor from where the measurements will be taken.
     :return: Measurement
-        The acceleration sensed
+        The measurement sensed
     """
     accel_data = custom_sensor.get_accel_data()
     return Measurement(accel_data['x'], accel_data['y'], accel_data['z'])
@@ -280,9 +255,9 @@ def get_accel(custom_sensor):
 
 def get_gyro(custom_sensor):
     """
-    Gets the acceleration values from a specific sensor
+    Gets the gyro values from a specific sensor
     :param custom_sensor: MPU6050
-        The sensor from where the accelerations will be taken.
+        The sensor from where the measurements will be taken.
     :return: Measurement
         The Gyroscope sensed
     """
@@ -290,7 +265,7 @@ def get_gyro(custom_sensor):
     return Measurement(gyro_data['x'], gyro_data['y'], gyro_data['z'])
 
 
-def initialization():
+def initialization(ip):
     """
     Get the matrices and start the data collection loop
 
@@ -298,6 +273,7 @@ def initialization():
     """
     global time_last_calibration
 
+    set_ip(ip)
     print("initializing")
     get_first_matrices()
     get_third_matrix()
@@ -305,5 +281,5 @@ def initialization():
     get_fourier_x_axis()
     get_data_accelerometers()
 
-
-initialization()
+if __name__ == "__main__":
+    initialization(sys.argv[1])

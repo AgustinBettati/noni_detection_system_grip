@@ -210,12 +210,15 @@ def apply_single_kalman_filter(acceleration, gyro):
 
 
 def getXAccAngle(accel):
+    #TODO add comment
     return np.arctan2(accel.x, np.sqrt((np.power(accel.y, 2) + np.power(accel.z, 2))))
 
 
 def getYAccAngle(accel):
+    #TODO add comment
     return np.arctan2(accel.y, np.sqrt((np.power(accel.x, 2) + np.power(accel.z, 2))))
 
 
 def getZAccAngle(accel):
+    #TODO add comment
     return np.arctan2(accel.z, np.sqrt((np.power(accel.x, 2) + np.power(accel.y, 2))))
