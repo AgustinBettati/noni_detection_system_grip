@@ -23,7 +23,7 @@ x_mat2 = np.empty(0)
 y_mat2 = np.empty(0)
 """Matrices use for rotations"""
 
-third_matrix_values = 10
+third_matrix_values = 500
 """Quantity of values to get before calculating the third matrix"""
 
 third_matrix_interval = 0.05

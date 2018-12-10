@@ -202,9 +202,9 @@ def apply_single_kalman_filter(acceleration, gyro):
     """
 
     global DT
-    x = kalmanFilterX(acceleration.x, gyro.x, DT)
-    y = kalmanFilterY(acceleration.y, gyro.y, DT)
-    z = kalmanFilterZ(acceleration.z, gyro.z, DT)
+    x = kalmanFilterX(getXAccAngle(acceleration.x), gyro.x, DT)
+    y = kalmanFilterY(getYAccAngle(acceleration.y), gyro.y, DT)
+    z = kalmanFilterZ(getZAccAngle(acceleration.z), gyro.z, DT)
 
     return Measurement(x, y, z)
 

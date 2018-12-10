@@ -42,7 +42,7 @@ kalman_values = [[0], [0], [0]]
 """Values for plotting kalman values"""
 
 
-data_quantity = 100
+data_quantity = 50
 """Quantity of measurements before start plotting"""
 
 x_axis = np.linspace(1, data_quantity, data_quantity)
